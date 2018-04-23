@@ -1,13 +1,20 @@
+/*
+    CMSC 142 SUDOKU-XY
+    2nd Semester AY 2017-2018
+    Casion, Claudine
+    Guiao, Justine Andrew
+    Leano, Dominic
+
+*/
 #include<stdio.h>
 #include<stdlib.h>
 #include<malloc.h>
-#define TEMP_SIZE 5
 
 int** initializeGrid(int subGridSize);
 void fillGridWithDummyData(int** sudokuGrid, int subGridSize);
 void printGrid(int** sudokuGrid,int subGridSize);
 
-//custom data type to store all sudokuPuzzles in txt file
+//custom data type to store all sudokuPuzzles from txt file
 typedef struct{
     int **sudokuGrid;
     int subGridSize;
@@ -34,10 +41,6 @@ int main(){
         printf("PUZZLE #%d: Size: %d\n",i+1,puzzles[i].subGridSize);
         printGrid(puzzles[i].sudokuGrid,puzzles[i].subGridSize);
     }
-
-    //int** sudokuGrid = initializeGrid(TEMP_SIZE);
-    //fillGridWithDummyData(sudokuGrid,TEMP_SIZE);
-	//printGrid(sudokuGrid,TEMP_SIZE);
 
 }
 int** initializeGrid(int subGridSize){
