@@ -127,6 +127,7 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
     //find square box index first
     int boxIndexX = 0;
     int boxIndexY = 0;
+    int flag = FALSE;
     for(int x = 0; x < absoluteSize; x+=subGridSize){
         for(int y = 0; y < absoluteSize; y+=subGridSize){
             for(int k = x; k < subGridSize+x;k++){
@@ -134,11 +135,15 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
                     if(i == k && j == l){
                         boxIndexX = x;
                         boxIndexY = y;
+                        flag = TRUE;
                         break;
                     }
                 }
+                if(flag == TRUE)break;
             }
+            if(flag == TRUE)break;
         }
+        if(flag == TRUE)break;
     }
 
     //find entries in box
@@ -171,14 +176,17 @@ void solve(int** sudokuGrid, int subGridSize){
         int i = 0;
         int j = 0;
 
+        int flag = FALSE;
         for(int x = 0; x < absoluteSize; x++){
             for(int y = 0; y < absoluteSize; y++){
                 if(sudokuGrid[x][y] == EMPTY){
                     i = x;
                     j = y;
+                    flag = TRUE;
                     break;
                 }
             }
+            if(flag == TRUE) break;
         }
         int* possibilities = getPossibleEntries(sudokuGrid,subGridSize,i,j);
         for(int x = 0; x < absoluteSize; x++){
