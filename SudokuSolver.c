@@ -20,6 +20,7 @@ void printGrid(int** sudokuGrid,int subGridSize);
 int isFull(int** sudokuGrid, int subGridSize);
 int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j);
 void solve(int** sudokuGrid, int subGridSize);
+void saveToFile(int** sudokuGrid,int subGridSize);
 
 int numberOfSolutions = 0;
 //custom data type to store all sudokuPuzzles from txt file
@@ -49,7 +50,10 @@ int main(){
         printf("PUZZLE #%d: Size: %d\n",i+1,puzzles[i].subGridSize);
         printGrid(puzzles[i].sudokuGrid,puzzles[i].subGridSize);
         solve(puzzles[i].sudokuGrid,puzzles[i].subGridSize);
+        printf("Number of solutions: %d\n",numberOfSolutions);
+        numberOfSolutions = 0;
     }
+    fclose(fp);
 }
 int** initializeGrid(int subGridSize){
     int absoluteSize = subGridSize * subGridSize;
@@ -168,7 +172,7 @@ void solve(int** sudokuGrid, int subGridSize){
         printf("Board solved!\n");
         printGrid(sudokuGrid,subGridSize);
         numberOfSolutions++;
-        printf("SOLUTIONS: %d/n",numberOfSolutions);
+        saveToFile(sudokuGrid,subGridSize);
         //return sudokuGrid;
     }else{
         //find vacant spot first
@@ -198,4 +202,20 @@ void solve(int** sudokuGrid, int subGridSize){
         //backtracking
         sudokuGrid[i][j] = EMPTY;
     }
+}
+
+void saveToFile(int** sudokuGrid, int subGridSize){
+    FILE *f = fopen("output.txt","a");
+    if(f == NULL){
+        printf("Error reading file");
+        exit(1);
+    }
+    int absoluteSize = subGridSize * subGridSize;
+    for(int i = 0; i < absoluteSize;i++){
+        for(int j = 0; j < absoluteSize; j++){
+            fprintf(f,"%d ",sudokuGrid[i][j]);
+        }
+        fprintf(f,"\n");
+    }
+    fprintf(f,"\n");
 }
