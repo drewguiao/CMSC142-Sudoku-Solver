@@ -218,4 +218,5 @@ void saveToFile(int** sudokuGrid, int subGridSize){
         fprintf(f,"\n");
     }
     fprintf(f,"\n");
+    fclose(f);
 }
