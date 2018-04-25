@@ -19,6 +19,11 @@ typedef struct{
     int subGridSize;
 }ArrayList;
 
+typedef struct{
+    int x;
+    int y;
+}Cell;
+
 int** initializeGrid(int subGridSize);
 void resetOutputFile();
 ArrayList* retrievePuzzlesFromInputFile(int numberOfPuzzles, FILE *fp);
@@ -28,6 +33,7 @@ void appendNumberOfSolutionsToTextFile();
 int isFull(int** sudokuGrid, int subGridSize);
 int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j);
 void solve(int** sudokuGrid, int subGridSize);
+Cell findEmptyCell(int** sudokuGrid, int absoluteSize);
 void saveToFile(int** sudokuGrid,int subGridSize);
 
 
@@ -135,28 +141,27 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
     int absoluteSize = subGridSize * subGridSize;
     int* possibleEntries = malloc(sizeof possibleEntries * absoluteSize);
 
-    //initialize possible entries to zero
+    //initialize possible entries to zero >> To do: modularize this
     for(int x = 0; x < absoluteSize; x++) possibleEntries[x] = 0;
 
-    //for horizontal checking
+    //for horizontal checking >> To do: modularize this
     for(int y = 0; y < absoluteSize; y++){
         if(sudokuGrid[i][y] != EMPTY){
             possibleEntries[sudokuGrid[i][y]-1] = 1;
         }
     }
 
-    //for vertical checking
+    //for vertical checking >> To do: modularize this
     for(int x = 0; x < absoluteSize; x++){
         if(sudokuGrid[x][j] != EMPTY){
             possibleEntries[sudokuGrid[x][j]-1] = 1;
         }
     }
 
-    //find bounding box
     int boxIndexX = findBoundingBox(i,subGridSize);
     int boxIndexY = findBoundingBox(j,subGridSize);
 
-    //find entries in box
+    //find entries in box >> To do: modularize this
     for(int x = boxIndexX; x < subGridSize+boxIndexX; x++){
         for(int y = boxIndexY; y < subGridSize+boxIndexY; y++){
             if(sudokuGrid[x][y] != EMPTY){
@@ -165,11 +170,32 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
         }
     }
 
+    //To do: add here, find entries in X
+    //To do: add here, find entries in Y
+    //To do: add here, find entries in XY
+
     for(int x = 0; x < absoluteSize; x++){
         possibleEntries[x] = (possibleEntries[x] == EMPTY) ? (x+1) : 0;
     }
 
     return possibleEntries;
+}
+
+Cell findEmptyCell(int** sudokoGrid, int absoluteSize){
+    Cell cell;
+    int flag = FALSE;
+    for(int i = 0; i < absoluteSize; i++){
+        for(int j = 0; j < absoluteSize; j++){
+            if(sudokoGrid[i][j] == EMPTY){
+                cell.x = i;
+                cell.y = j;
+                flag = TRUE;
+                break;
+            }
+        }
+        if(flag == TRUE) break;
+    }
+    return cell;
 }
 
 void solve(int** sudokuGrid, int subGridSize){
@@ -181,32 +207,18 @@ void solve(int** sudokuGrid, int subGridSize){
         saveToFile(sudokuGrid,subGridSize);
 
     }else{
-
         int absoluteSize = subGridSize * subGridSize;
-        int i = 0;
-        int j = 0;
+        Cell emptyCell = findEmptyCell(sudokuGrid,absoluteSize);
 
-        int flag = FALSE;
-        for(int x = 0; x < absoluteSize; x++){
-            for(int y = 0; y < absoluteSize; y++){
-                if(sudokuGrid[x][y] == EMPTY){
-                    i = x;
-                    j = y;
-                    flag = TRUE;
-                    break;
-                }
-            }
-            if(flag == TRUE) break;
-        }
-        int* possibilities = getPossibleEntries(sudokuGrid,subGridSize,i,j);
+        int* possibilities = getPossibleEntries(sudokuGrid,subGridSize,emptyCell.x,emptyCell.y);
         for(int x = 0; x < absoluteSize; x++){
             if(possibilities[x] != EMPTY){
-                sudokuGrid[i][j] = possibilities[x];
+                sudokuGrid[emptyCell.x][emptyCell.y] = possibilities[x];
                 solve(sudokuGrid, subGridSize);
             }
         }
 
-        sudokuGrid[i][j] = EMPTY;
+        sudokuGrid[emptyCell.x][emptyCell.y] = EMPTY;
     }
 }
 
