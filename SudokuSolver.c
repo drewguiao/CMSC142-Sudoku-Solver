@@ -106,6 +106,10 @@ int isFull(int** sudokuGrid, int subGridSize){
     return TRUE;
 }
 
+int findBoundingBox(int index, int sudokuGrid){
+    return (index /sudokuGrid) * sudokuGrid;
+}
+
 int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
     int absoluteSize = subGridSize * subGridSize;
     int* possibleEntries = malloc(sizeof possibleEntries * absoluteSize);
@@ -126,11 +130,11 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
             possibleEntries[sudokuGrid[x][j]-1] = 1;
         }
     }
-    
+
     //find bounding box
-    int boxIndexX = (i / subGridSize) * subGridSize;
-    int boxIndexY = (j / subGridSize) * subGridSize;
-   
+    int boxIndexX = findBoundingBox(i,subGridSize);
+    int boxIndexY = findBoundingBox(j,subGridSize);
+
     //find entries in box
     for(int x = boxIndexX; x < subGridSize+boxIndexX; x++){
         for(int y = boxIndexY; y < subGridSize+boxIndexY; y++){
