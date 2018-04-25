@@ -31,11 +31,13 @@ void startSolving(ArrayList* puzzles, int numOfPuzzles);
 void printGrid(int** sudokuGrid,int subGridSize);
 void appendNumberOfSolutionsToTextFile();
 int isFull(int** sudokuGrid, int subGridSize);
-int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j);
+int* getPossibleEntries(int** sudokuGrid, int subGridSize, Cell cell);
 void solve(int** sudokuGrid, int subGridSize);
 Cell findEmptyCell(int** sudokuGrid, int absoluteSize);
 void saveToFile(int** sudokuGrid,int subGridSize);
-
+int* initializeEntries(int absoluteSize);
+void checkRowForUnwantedEntries(int* possibleEntries, int absoluteSize, int** sudokuGrid, int xIndex);
+void checkColForUnwantedEntries(int* possibleEntries, int absoluteSize, int** sudokuGrid, int yIndex);
 
 int numberOfSolutions = 0;
 
@@ -137,32 +139,36 @@ int findBoundingBox(int index, int sudokuGrid){
     return (index /sudokuGrid) * sudokuGrid;
 }
 
-int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
-    int absoluteSize = subGridSize * subGridSize;
+int* initializeEntries(int absoluteSize){
     int* possibleEntries = malloc(sizeof possibleEntries * absoluteSize);
+    for(int i = 0 ; i < absoluteSize; i++){
+        possibleEntries[i] = 0;
+    }
+    return possibleEntries;
+}
 
-    //initialize possible entries to zero >> To do: modularize this
-    for(int x = 0; x < absoluteSize; x++) possibleEntries[x] = 0;
-
-    //for horizontal checking >> To do: modularize this
+void checkRowForUnwantedEntries(int* possibleEntries, int absoluteSize, int** sudokuGrid,int xIndex){
     for(int y = 0; y < absoluteSize; y++){
-        if(sudokuGrid[i][y] != EMPTY){
-            possibleEntries[sudokuGrid[i][y]-1] = 1;
+        if(sudokuGrid[xIndex][y] != EMPTY){
+            possibleEntries[sudokuGrid[xIndex][y]-1] = 1;
         }
     }
+}
 
-    //for vertical checking >> To do: modularize this
+void checkColForUnwantedEntries(int* possibleEntries, int absoluteSize, int** sudokuGrid,int yIndex){
     for(int x = 0; x < absoluteSize; x++){
-        if(sudokuGrid[x][j] != EMPTY){
-            possibleEntries[sudokuGrid[x][j]-1] = 1;
+        if(sudokuGrid[x][yIndex] != EMPTY){
+            possibleEntries[sudokuGrid[x][yIndex]-1] = 1;
         }
     }
+}
 
-    int boxIndexX = findBoundingBox(i,subGridSize);
-    int boxIndexY = findBoundingBox(j,subGridSize);
+void checkGridForUnwantedEntries(int* possibleEntries, int subGridSize, int** sudokuGrid, Cell emptyCell){
 
-    //find entries in box >> To do: modularize this
-    for(int x = boxIndexX; x < subGridSize+boxIndexX; x++){
+    int boxIndexX = findBoundingBox(emptyCell.x,subGridSize);
+    int boxIndexY = findBoundingBox(emptyCell.y,subGridSize);
+
+     for(int x = boxIndexX; x < subGridSize+boxIndexX; x++){
         for(int y = boxIndexY; y < subGridSize+boxIndexY; y++){
             if(sudokuGrid[x][y] != EMPTY){
                 possibleEntries[sudokuGrid[x][y]-1] = 1;
@@ -170,9 +176,23 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j){
         }
     }
 
+}
+
+int* getPossibleEntries(int** sudokuGrid, int subGridSize, Cell emptyCell){
+    int absoluteSize = subGridSize * subGridSize;
+
+    int* possibleEntries = initializeEntries(absoluteSize);
+
+    checkRowForUnwantedEntries(possibleEntries,absoluteSize,sudokuGrid,emptyCell.x);
+    checkColForUnwantedEntries(possibleEntries,absoluteSize,sudokuGrid,emptyCell.y);
+    checkGridForUnwantedEntries(possibleEntries,subGridSize,sudokuGrid,emptyCell);
+
     //To do: add here, find entries in X
+    //checkXForUnwantedEntries()
     //To do: add here, find entries in Y
+    //checkYForUnwantedEntries()
     //To do: add here, find entries in XY
+    //checkXYForUnwantedEntries
 
     for(int x = 0; x < absoluteSize; x++){
         possibleEntries[x] = (possibleEntries[x] == EMPTY) ? (x+1) : 0;
@@ -210,7 +230,7 @@ void solve(int** sudokuGrid, int subGridSize){
         int absoluteSize = subGridSize * subGridSize;
         Cell emptyCell = findEmptyCell(sudokuGrid,absoluteSize);
 
-        int* possibilities = getPossibleEntries(sudokuGrid,subGridSize,emptyCell.x,emptyCell.y);
+        int* possibilities = getPossibleEntries(sudokuGrid,subGridSize,emptyCell);
         for(int x = 0; x < absoluteSize; x++){
             if(possibilities[x] != EMPTY){
                 sudokuGrid[emptyCell.x][emptyCell.y] = possibilities[x];
