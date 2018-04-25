@@ -9,37 +9,52 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include<malloc.h>
+
 #define TRUE 1
 #define FALSE 0
 #define EMPTY 0
 
-int** initializeGrid(int subGridSize);
-void fillGridWithDummyData(int** sudokuGrid, int subGridSize);
-void printGrid(int** sudokuGrid,int subGridSize);
-int isFull(int** sudokuGrid, int subGridSize);
-int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j);
-void solve(int** sudokuGrid, int subGridSize);
-void saveToFile(int** sudokuGrid,int subGridSize);
-
-int numberOfSolutions = 0;
-//custom data type to store all sudokuPuzzles from txt file
 typedef struct{
     int **sudokuGrid;
     int subGridSize;
 }ArrayList;
 
+int** initializeGrid(int subGridSize);
+void resetOutputFile();
+ArrayList* retrievePuzzlesFromInputFile(int numberOfPuzzles, FILE *fp);
+void startSolving(ArrayList* puzzles, int numOfPuzzles);
+void printGrid(int** sudokuGrid,int subGridSize);
+void appendNumberOfSolutionsToTextFile();
+int isFull(int** sudokuGrid, int subGridSize);
+int* getPossibleEntries(int** sudokuGrid, int subGridSize, int i, int j);
+void solve(int** sudokuGrid, int subGridSize);
+void saveToFile(int** sudokuGrid,int subGridSize);
+
+
+int numberOfSolutions = 0;
+
 int main(){
 
     int numOfPuzzles;
-    FILE *fp = fopen("input.txt","r"); //read input file
-    fscanf(fp,"%d",&numOfPuzzles); //read first number in txt file as number of SudokuPuzzles
 
-    ArrayList* puzzles = malloc(sizeof(puzzles)* numOfPuzzles); //allocate memory for puzzles
+    FILE *fp = fopen("input.txt","r");
 
-    //retrieves all puzzles in the text file
+    fscanf(fp,"%d",&numOfPuzzles);
+    resetOutputFile();
+    ArrayList* puzzles = retrievePuzzlesFromInputFile(numOfPuzzles,fp);
+    startSolving(puzzles, numOfPuzzles);
+
+    fclose(fp);
+}
+
+void resetOutputFile(){
+    remove("output.txt");
+}
+
+ArrayList* retrievePuzzlesFromInputFile(int numOfPuzzles, FILE *fp){
+    ArrayList* puzzles = malloc(sizeof(puzzles)* numOfPuzzles);
     for(int i = 0; i < numOfPuzzles; i++){
-        fscanf(fp,"%d",&puzzles[i].subGridSize); //get input from txt file as the size of the puzzle
+        fscanf(fp,"%d",&puzzles[i].subGridSize);
         puzzles[i].sudokuGrid = initializeGrid(puzzles[i].subGridSize);
         int absoluteSize = puzzles[i].subGridSize * puzzles[i].subGridSize;
         for(int j = 0; j < absoluteSize;j++){
@@ -47,14 +62,29 @@ int main(){
                 fscanf(fp,"%d",&puzzles[i].sudokuGrid[j][k]);
             }
         }
-        printf("PUZZLE #%d: Size: %d\n",i+1,puzzles[i].subGridSize);
+    }
+    return puzzles;
+}
+
+void startSolving(ArrayList* puzzles, int numOfPuzzles){
+    for(int i = 0; i < numOfPuzzles; i++){
+        printf("Puzzle #%d\n Sub-grid size: %d\n",(i+1),puzzles[i].subGridSize);
         printGrid(puzzles[i].sudokuGrid,puzzles[i].subGridSize);
         solve(puzzles[i].sudokuGrid,puzzles[i].subGridSize);
-        printf("Number of solutions: %d\n",numberOfSolutions);
+        appendNumberOfSolutionsToTextFile(i, numberOfSolutions);
         numberOfSolutions = 0;
+    }
+}
+
+void appendNumberOfSolutionsToTextFile(int index, int numberOfSolutions){
+    FILE *fp = fopen("output.txt","a");
+    if(fp == NULL) printf("File not found!");
+    else{
+        fprintf(fp,"SOLUTIONS FOR PUZZLE #%d: %d\n\n",(index+1),numberOfSolutions);
     }
     fclose(fp);
 }
+
 int** initializeGrid(int subGridSize){
     int absoluteSize = subGridSize * subGridSize;
     int **grid = malloc(sizeof *grid * absoluteSize);
@@ -62,15 +92,6 @@ int** initializeGrid(int subGridSize){
         grid[i] = malloc(sizeof *grid[i] * absoluteSize);
     }
     return grid;
-}
-
-void fillGridWithDummyData(int** sudokuGrid, int subGridSize){
-    int absoluteSize = subGridSize * subGridSize;
-    for(int i = 0; i < absoluteSize; i++){
-        for(int j = 0; j < absoluteSize;j++){
-            sudokuGrid[i][j] = 1;
-        }
-    }
 }
 
 void printGrid(int** sudokuGrid, int subGridSize){
@@ -158,9 +179,9 @@ void solve(int** sudokuGrid, int subGridSize){
         printGrid(sudokuGrid,subGridSize);
         numberOfSolutions++;
         saveToFile(sudokuGrid,subGridSize);
-        //return sudokuGrid;
+
     }else{
-        //find vacant spot first
+
         int absoluteSize = subGridSize * subGridSize;
         int i = 0;
         int j = 0;
@@ -184,7 +205,7 @@ void solve(int** sudokuGrid, int subGridSize){
                 solve(sudokuGrid, subGridSize);
             }
         }
-        //backtracking
+
         sudokuGrid[i][j] = EMPTY;
     }
 }
