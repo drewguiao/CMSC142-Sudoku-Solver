@@ -140,7 +140,6 @@ void checkColForUnwantedEntries(int* possibleEntries, int absoluteSize, int** su
 }
 
 void checkGridForUnwantedEntries(int* possibleEntries, int subGridSize, int** sudokuGrid, Cell emptyCell){
-
     int boxIndexX = findBoundingBox(emptyCell.x,subGridSize);
     int boxIndexY = findBoundingBox(emptyCell.y,subGridSize);
 
@@ -167,7 +166,7 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, Cell emptyCell){
     //To do: add here, find entries in Y
     //checkYForUnwantedEntries()
     //To do: add here, find entries in XY
-    //checkXYForUnwantedEntries
+    //checkXYForUnwantedEntries()
 
     for(int x = 0; x < absoluteSize; x++){
         possibleEntries[x] = (possibleEntries[x] == EMPTY) ? (x+1) : 0;
