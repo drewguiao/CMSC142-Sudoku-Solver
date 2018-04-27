@@ -7,8 +7,8 @@
 
 */
 
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "SudokuUtils.h"
 
 #define TRUE 1
@@ -123,7 +123,7 @@ int* initializeEntries(int absoluteSize){
     return possibleEntries;
 }
 
-void checkRowForUnwantedEntries(int* possibleEntries, int absoluteSize, int** sudokuGrid,int xIndex){
+void findEntriesInRow(int* possibleEntries, int absoluteSize, int** sudokuGrid,int xIndex){
     for(int y = 0; y < absoluteSize; y++){
         if(sudokuGrid[xIndex][y] != EMPTY){
             possibleEntries[sudokuGrid[xIndex][y]-1] = 1;
@@ -131,7 +131,7 @@ void checkRowForUnwantedEntries(int* possibleEntries, int absoluteSize, int** su
     }
 }
 
-void checkColForUnwantedEntries(int* possibleEntries, int absoluteSize, int** sudokuGrid,int yIndex){
+void findEntriesInCol(int* possibleEntries, int absoluteSize, int** sudokuGrid,int yIndex){
     for(int x = 0; x < absoluteSize; x++){
         if(sudokuGrid[x][yIndex] != EMPTY){
             possibleEntries[sudokuGrid[x][yIndex]-1] = 1;
@@ -139,7 +139,7 @@ void checkColForUnwantedEntries(int* possibleEntries, int absoluteSize, int** su
     }
 }
 
-void checkGridForUnwantedEntries(int* possibleEntries, int subGridSize, int** sudokuGrid, Cell emptyCell){
+void findEntriesInSubGrid(int* possibleEntries, int subGridSize, int** sudokuGrid, Cell emptyCell){
     int boxIndexX = findBoundingBox(emptyCell.x,subGridSize);
     int boxIndexY = findBoundingBox(emptyCell.y,subGridSize);
 
@@ -157,16 +157,16 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, Cell emptyCell){
 
     int* possibleEntries = initializeEntries(absoluteSize);
 
-    checkRowForUnwantedEntries(possibleEntries,absoluteSize,sudokuGrid,emptyCell.x);
-    checkColForUnwantedEntries(possibleEntries,absoluteSize,sudokuGrid,emptyCell.y);
-    checkGridForUnwantedEntries(possibleEntries,subGridSize,sudokuGrid,emptyCell);
+    findEntriesInRow(possibleEntries,absoluteSize,sudokuGrid,emptyCell.x);
+    findEntriesInCol(possibleEntries,absoluteSize,sudokuGrid,emptyCell.y);
+    findEntriesInSubGrid(possibleEntries,subGridSize,sudokuGrid,emptyCell);
 
     //To do: add here, find entries in X
-    //checkXForUnwantedEntries()
+    //findEntriesInX()
     //To do: add here, find entries in Y
-    //checkYForUnwantedEntries()
+    //findEntriesInY()
     //To do: add here, find entries in XY
-    //checkXYForUnwantedEntries()
+    //findEntriesInXY()
 
     for(int x = 0; x < absoluteSize; x++){
         possibleEntries[x] = (possibleEntries[x] == EMPTY) ? (x+1) : 0;
