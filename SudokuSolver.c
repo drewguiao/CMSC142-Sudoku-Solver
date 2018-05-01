@@ -152,6 +152,24 @@ void findEntriesInSubGrid(int* possibleEntries, int subGridSize, int** sudokuGri
     }
 }
 
+//left to right diagonal
+void findEntriesInXL(int* possibleEntries, int absoluteSize, int** sudokuGrid){
+    for(int x = 0; x < absoluteSize; x++){
+        if(sudokuGrid[x][x] != EMPTY){
+            possibleEntries[sudokuGrid[x][x]-1] = 1;
+        }
+    }
+}
+
+//right to left diagonal
+void findEntriesInXR(int* possibleEntries, int absoluteSize, int** sudokuGrid){
+    for(int x = 0, y = absoluteSize; x < absoluteSize; x++, y--){
+        if(sudokuGrid[x][y] != EMPTY){
+            possibleEntries[sudokuGrid[x][y]-1] = 1;
+        }
+    }
+}
+
 int* getPossibleEntries(int** sudokuGrid, int subGridSize, Cell emptyCell){
     int absoluteSize = subGridSize * subGridSize;
 
@@ -161,8 +179,14 @@ int* getPossibleEntries(int** sudokuGrid, int subGridSize, Cell emptyCell){
     findEntriesInCol(possibleEntries,absoluteSize,sudokuGrid,emptyCell.y);
     findEntriesInSubGrid(possibleEntries,subGridSize,sudokuGrid,emptyCell);
 
-    //To do: add here, find entries in X
-    //findEntriesInX()
+    // Sudoku X
+    // left to right diagonal
+    if(emptyCell.x == emptyCell.y)
+      findEntriesInXL(possibleEntries,absoluteSize,sudokuGrid);
+    // right to left diagonal
+    if(emptyCell.x + emptyCell.y - 1 == absoluteSize)
+      findEntriesInXR(possibleEntries,absoluteSize,sudokuGrid);
+
     //To do: add here, find entries in Y
     //findEntriesInY()
     //To do: add here, find entries in XY
