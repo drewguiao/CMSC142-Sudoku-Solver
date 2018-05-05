@@ -128,23 +128,23 @@ class Sudoku{
 			}
 		}
 
-		//findEntriesInXTopLeftToRightDiagonal
-		if(xIndex == yIndex){
-			for(int x = 0; x < boardSize; x++){
-				if(puzzle.board[x][x] != EMPTY){
-					possibleEntries[puzzle.board[x][x] - 1] = 1;
-				}
-			}
-		}
+		// //findEntriesInXTopLeftToRightDiagonal
+		// if(xIndex == yIndex){
+		// 	for(int x = 0; x < boardSize; x++){
+		// 		if(puzzle.board[x][x] != EMPTY){
+		// 			possibleEntries[puzzle.board[x][x] - 1] = 1;
+		// 		}
+		// 	}
+		// }
 
-		//findEntriesInXTopRightToLeftDiagonal
-		if(xIndex + yIndex == boardSize - 1){
-			for(int x = 0, y = boardSize - 1; x < boardSize; x++,y--){
-				if(puzzle.board[x][y] != EMPTY){
-					possibleEntries[puzzle.board[x][y] - 1] = 1;
-				}
-			}
-		}
+		// //findEntriesInXTopRightToLeftDiagonal
+		// if(xIndex + yIndex == boardSize - 1){
+		// 	for(int x = 0, y = boardSize - 1; x < boardSize; x++,y--){
+		// 		if(puzzle.board[x][y] != EMPTY){
+		// 			possibleEntries[puzzle.board[x][y] - 1] = 1;
+		// 		}
+		// 	}
+		// }
 
 		//findEntriesInY
 		if(boardSize % 2 != 0){
@@ -229,6 +229,8 @@ class Sudoku{
 		return (index/subGridSize) * subGridSize;
 	}
 
-
+	public List<Puzzle> getPuzzles(){
+		return this.puzzles;
+	}
 
 }

@@ -23,9 +23,10 @@ class Puzzle{
 		return this.boardSize;
 	}
 
-	public void updateBoard(int[][] newBoard){
-		this.board = newBoard;
+	public int[][] getBoard(){
+		return this.board;
 	}
+
 
 	public void addSolution(int[][] board){
 		this.solutions.add(board);
