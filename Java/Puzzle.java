@@ -1,9 +1,13 @@
+import java.util.List;
+import java.util.ArrayList;
+
 class Puzzle{
 
 	private int subGridSize;
 	private int boardSize;
 	public int[][] board;
 	private int numOfSolutions = 0;
+	private List<int[][]> solutions = new ArrayList<>();
 
 	public Puzzle(int subGridSize, int boardSize, int[][]  board){
 		this.subGridSize = subGridSize;
@@ -19,18 +23,17 @@ class Puzzle{
 		return this.boardSize;
 	}
 
-	
-
 	public void updateBoard(int[][] newBoard){
 		this.board = newBoard;
 	}
 
-	public void updateNumberOfSolutions(){
-		this.numOfSolutions++;
+	public void addSolution(int[][] board){
+		this.solutions.add(board);
 	}
 
+	
 	public int getNumberOfSolutions(){
-		return this.numOfSolutions;
+		return this.solutions.size();
 	}
 
 	@Override
