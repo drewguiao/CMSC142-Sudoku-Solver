@@ -51,9 +51,9 @@ class Sudoku{
 	private void solve(Puzzle puzzle){
 		if(isFull(puzzle)){
 			System.out.println("Puzzle solved!");
-			System.out.println("SOLUTION #"+(puzzle.getNumberOfSolutions()+1));
+			puzzle.addSolution(puzzle.board);
+			System.out.println("SOLUTION #"+(puzzle.getNumberOfSolutions()));
 			System.out.println(puzzle);
-			puzzle.updateNumberOfSolutions();
 		}else{
 			Cell emptyCell = findEmptyCell(puzzle);
 			int[] possibleEntries = getPossibleEntries(puzzle, emptyCell);
@@ -147,6 +147,35 @@ class Sudoku{
 		}
 
 		//findEntriesInY
+		if(boardSize % 2 != 0){
+			int halfOfBoard = boardSize / 2;
+
+			//check upper half left diagonal
+			if(xIndex < halfOfBoard && xIndex == yIndex){	
+				for(int x = 0; x < halfOfBoard; x++){
+					if(puzzle.board[x][x] != EMPTY){
+						possibleEntries[puzzle.board[x][x] - 1] = 1;
+					}
+				}
+			}
+			//check upper half right diagonal
+			if(xIndex < halfOfBoard && xIndex + yIndex == boardSize -1 ){
+				for(int x = 0, y = boardSize - 1; x < halfOfBoard; x++,y--){
+					if(puzzle.board[x][y] != EMPTY){
+						possibleEntries[puzzle.board[x][y] - 1] = 1;
+					}
+				}
+			}
+
+			//check middle for Y stem
+			if(xIndex >= halfOfBoard && yIndex == halfOfBoard){
+				for(int x = xIndex,y = yIndex; x < boardSize; x++){
+					if(puzzle.board[x][y] != EMPTY){
+						possibleEntries[puzzle.board[x][y] - 1] = 1;
+					}
+				}
+			}
+		}
 		
 
 
