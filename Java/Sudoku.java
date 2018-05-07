@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.FileReader;
 import java.util.List;
 import java.util.ArrayList;
@@ -7,7 +9,7 @@ import java.util.Scanner;
 
 class Sudoku implements Constants{
 	private int numOfPuzzles;
-	
+
 	private static final String SPACE = " ";
 	private static final int EMPTY = 0;
 	private List<Puzzle> puzzles = new ArrayList<>();
@@ -23,7 +25,7 @@ class Sudoku implements Constants{
 				int boardSize = subGridSize * subGridSize;
 				int[][] board = new int[boardSize][boardSize];
 
-				for(int x = 0; x < boardSize; x++){	
+				for(int x = 0; x < boardSize; x++){
 					String currentLine = breader.readLine();
 					String[] tokens = currentLine.split(SPACE);
 					for(int y = 0; y < boardSize; y++){
@@ -40,20 +42,59 @@ class Sudoku implements Constants{
 		}
 	}
 
+	public void writeFile(){
+	  try{
+	    BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+	    for(Puzzle puzzle: puzzles) {
+	      writer.write("Puzzle #"+(puzzles.indexOf(puzzle)+1)+":\n");
+				for(int i = 0; i < puzzle.getBoardSize();i++){
+						for(int j = 0; j < puzzle.getBoardSize(); j++){
+								writer.write(puzzle.getBoard()[i][j] + " ");
+								System.out.print(puzzle.getBoard()[i][j]+ " ");
+						}
+						writer.write("\n");
+						System.out.println();
+				}
+				writer.write("\n");
+
+				writer.write("Number of Solutions: "+puzzle.getNumberOfSolutions()+"\n\n");
+
+	      List<int[][]> solutions = puzzle.getSolutions();
+				for(int[][] solution : solutions) {
+	      	int absoluteSize = puzzle.getSubGridSize() * puzzle.getSubGridSize();
+					for(int i = 0; i < absoluteSize;i++){
+	            for(int j = 0; j < absoluteSize; j++){
+	                writer.write(solution[i][j] + " ");
+	      					System.out.print(solution[i][j]+ " ");
+	            }
+	      			writer.write("\n");
+	      			System.out.println();
+	      	}
+	        writer.write("\n");
+	      	System.out.println();
+	      }
+	    }
+	    writer.close();
+	  }catch(IOException ioe){
+	    System.out.println("Sudoku.java.writeFile: "+ioe.getMessage());
+	  }
+	}
+
 	public void startSolving(){
 		for(int i = 0 ; i < this.numOfPuzzles; i++){
 			Puzzle puzzle = this.puzzles.get(i);
 			System.out.println("PUZZLE #"+(i+1));
 			System.out.println(puzzle);
 			solve(puzzle);
+			writeFile();
 		}
 	}
 
-	public void solveNonRecursive(Puzzle puzzle){
-		while(){
-
-		}
-	}
+	// public void solveNonRecursive(Puzzle puzzle){
+	// 	while(){
+	//
+	// 	}
+	// }
 
 	public void solve(Puzzle puzzle){
 		if(isFull(puzzle)){
@@ -105,7 +146,7 @@ class Sudoku implements Constants{
 				}else{
 					Cell emptyCell = findEmptyCell(puzzle);
 					int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, identifier);
-					
+
 					for(int x = 0; x < boardSize; x++){
 						if(possibleEntries[x] != EMPTY){
 							puzzle.board[emptyCell.getX()][emptyCell.getY()] = possibleEntries[x];
@@ -117,14 +158,14 @@ class Sudoku implements Constants{
 			}
 		}
 
-		
+
 	}
 
 	private boolean hasIrregularities(Puzzle puzzle){
 		int[][] board = puzzle.getOriginalBoard();
 		int boardSize = puzzle.getBoardSize();
 		int halfOfBoard = boardSize / 2;
-		
+
 		//check if a number in left and right diagonal exists already in stem
 		for(int i = 0; i < halfOfBoard; i++){
 			if(board[i][i] != EMPTY){
@@ -137,7 +178,7 @@ class Sudoku implements Constants{
 				int comparator = board[i][boardSize - i - 1];
 				for(int x = halfOfBoard, y = halfOfBoard; x < boardSize; x++){
 					if(comparator == board[x][y]) return true;
-					
+
 				}
 			}
 		}
@@ -146,7 +187,7 @@ class Sudoku implements Constants{
 	}
 
 	private int[] getPossibleEntries(Puzzle puzzle, Cell emptyCell, int identifier){
-		
+
 		int boardSize = puzzle.getBoardSize();
 		int[] possibleEntries = new int[boardSize];
 		int xIndex = emptyCell.getX();
@@ -234,7 +275,7 @@ class Sudoku implements Constants{
 			}
 		}else if(identifier == Y_SOLVING){
 			//findEntriesInY
-		
+
 
 			//findEntriesInRow
 			for(int y = 0; y < boardSize; y++){
@@ -269,7 +310,7 @@ class Sudoku implements Constants{
 			int halfOfBoard = boardSize / 2;
 
 			//check upper half left diagonal
-			if(xIndex < halfOfBoard && xIndex == yIndex){	
+			if(xIndex < halfOfBoard && xIndex == yIndex){
 				for(int x = 0; x < halfOfBoard; x++){
 					if(puzzle.board[x][x] != EMPTY){
 						possibleEntries[puzzle.board[x][x] - 1] = 1;
@@ -364,7 +405,7 @@ class Sudoku implements Constants{
 			int halfOfBoard = boardSize / 2;
 
 			//check upper half left diagonal
-			if(xIndex < halfOfBoard && xIndex == yIndex){	
+			if(xIndex < halfOfBoard && xIndex == yIndex){
 				for(int x = 0; x < halfOfBoard; x++){
 					if(puzzle.board[x][x] != EMPTY){
 						possibleEntries[puzzle.board[x][x] - 1] = 1;
@@ -423,7 +464,7 @@ class Sudoku implements Constants{
 	}
 
 	private int[] getPossibleEntries(Puzzle puzzle, Cell emptyCell){
-		
+
 		int boardSize = puzzle.getBoardSize();
 		int[] possibleEntries = new int[boardSize];
 		int xIndex = emptyCell.getX();
@@ -482,7 +523,7 @@ class Sudoku implements Constants{
 			int halfOfBoard = boardSize / 2;
 
 			//check upper half left diagonal
-			if(xIndex < halfOfBoard && xIndex == yIndex){	
+			if(xIndex < halfOfBoard && xIndex == yIndex){
 				for(int x = 0; x < halfOfBoard; x++){
 					if(puzzle.board[x][x] != EMPTY){
 						possibleEntries[puzzle.board[x][x] - 1] = 1;
@@ -507,7 +548,7 @@ class Sudoku implements Constants{
 				}
 			}
 		}
-		
+
 
 
 		for(int x = 0; x < boardSize; x++){
@@ -538,7 +579,7 @@ class Sudoku implements Constants{
 	}
 
 	private int[] findEntriesInSubGrid(int[] possibleEntries, Puzzle puzzle, Cell emptyCell){
-		
+
 		int subGridSize = puzzle.getSubGridSize();
 		int boxIndexX = findBoundingBox(emptyCell.getX(), subGridSize);
 		int boxIndexY = findBoundingBox(emptyCell.getY(), subGridSize);
