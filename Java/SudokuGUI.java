@@ -4,6 +4,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -14,7 +15,8 @@ import java.awt.event.ActionEvent;
 class SudokuGUI{
 	private JFrame sudokuFrame;
 	private JFrame solutionsFrame;
-	private JPanel menuPanel, boardPanel,solutionsPanel;
+	private JFrame availablePuzzlesFrame;
+	private JPanel menuPanel, boardPanel,solutionsPanel, availablePuzzlesPanel;
 	private JButton selectPuzzle, solveButton, getSolutionsButton;
 	private JTextField grid[][];
 	private int boardSize;
@@ -35,6 +37,7 @@ class SudokuGUI{
 		this.buildBoardPanel();
 		this.buildSudokuFrame();
 		this.buildSolutionsFrame();
+		this.buildPuzzlesFrame();
 	}
 
 	public void render(){
@@ -122,6 +125,18 @@ class SudokuGUI{
 		this.solutionsPanel.add(scrollPane);
 		this.solutionsFrame.add(solutionsPanel);
 		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
+	}
+
+	private void buildPuzzlesFrame(){
+		this.availablePuzzlesFrame = new JFrame("Available Puzzles");
+		this.availablePuzzlesPanel = new JPanel(new GridLayout(1,1));
+		JLabel label = new JLabel("\tPICK PUZZLE TO SOLVE:");
+	
+		this.availablePuzzlesPanel.add(label);
+		this.availablePuzzlesFrame.add(availablePuzzlesPanel);
+		this.availablePuzzlesFrame.setSize(500,100);
+		this.availablePuzzlesFrame.setVisible(true);
+
 	}
 
 	public JFrame getFrame(){
