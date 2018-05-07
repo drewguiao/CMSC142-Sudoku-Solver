@@ -12,43 +12,43 @@ class SudokuRunner implements Constants{
 
 		Sudoku s = new Sudoku();
 		s.readFile(INPUT_FILE);
-		// s.startSolving();
+		s.startSolving();
 
 		List<Puzzle> puzzles = s.getPuzzles();
 		int numOfPuzzles = puzzles.size();
 
-		while(choice != EXIT){
-			for(int i = 0; i < numOfPuzzles;){
-				Puzzle puzzle = puzzles.get(i);
-				System.out.println(puzzle);
-				showMenu();
-				choice = console.nextInt();
-				switch(choice){
-					case NATURAL_SOLVING: s.solve(puzzle,NATURAL_SOLVING);
-					break;
-					case X_SOLVING: s.solve(puzzle, X_SOLVING);
-					break;
-					case Y_SOLVING: s.solve(puzzle, Y_SOLVING);
-					break;
-					case XY_SOLVING: s.solve(puzzle, XY_SOLVING);
-					break;
-					case NEXT: i++;
-					break;
-					case EXIT: System.out.println("Exiting application!");
-								i = numOfPuzzles;
-					break;
-				}
-				puzzle.board = puzzle.getOriginalBoard();
-				puzzle.resetSolutions();
-			}
-		}
+		// while(choice != EXIT){
+		// 	for(int i = 0; i < numOfPuzzles;){
+		// 		Puzzle puzzle = puzzles.get(i);
+		// 		System.out.println(puzzle);
+		// 		showMenu();
+		// 		choice = console.nextInt();
+		// 		switch(choice){
+		// 			case NATURAL_SOLVING: s.solve(puzzle,NATURAL_SOLVING);
+		// 			break;
+		// 			case X_SOLVING: s.solve(puzzle, X_SOLVING);
+		// 			break;
+		// 			case Y_SOLVING: s.solve(puzzle, Y_SOLVING);
+		// 			break;
+		// 			case XY_SOLVING: s.solve(puzzle, XY_SOLVING);
+		// 			break;
+		// 			case NEXT: i++;
+		// 			break;
+		// 			case EXIT: System.out.println("Exiting application!");
+		// 						i = numOfPuzzles;
+		// 			break;
+		// 		}
+		// 		puzzle.board = puzzle.getOriginalBoard();
+		// 		puzzle.resetSolutions();
+		// 	}
+		// }
 
-		// Puzzle puzzle = puzzles.get(0);
-		// int[][] board = puzzle.getBoard();
-		// int subGridSize = puzzle.getSubGridSize();
+		Puzzle puzzle = puzzles.get(0);
+		int[][] board = puzzle.getBoard();
+		int subGridSize = puzzle.getSubGridSize();
 
-		// SudokuGUI gui = new SudokuGUI(subGridSize,board);
-		// gui.render();
+		SudokuGUI gui = new SudokuGUI(subGridSize,board);
+		gui.render();
 	}
 
 	private static void showMenu(){

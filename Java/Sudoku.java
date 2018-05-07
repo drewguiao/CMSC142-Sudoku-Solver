@@ -47,7 +47,12 @@ class Sudoku implements Constants{
 			System.out.println(puzzle);
 			// System.out.println();
 			solve(puzzle);
+			// solveNonRecursive(puzzle);
 		}
+	}
+
+	public void solveNonRecursive(Puzzle puzzle){
+
 	}
 
 	public void solve(Puzzle puzzle){
@@ -55,6 +60,17 @@ class Sudoku implements Constants{
 			System.out.println("Puzzle solved!");
 			puzzle.addSolution(puzzle.board);
 			System.out.println("SOLUTION #"+(puzzle.getNumberOfSolutions()));
+
+			int absoluteSize = puzzle.getSubGridSize() * puzzle.getSubGridSize();
+			System.out.println("SOLVED CONFIG:");
+			for(int i = 0; i < absoluteSize; i++){
+				for(int j = 0; j < absoluteSize; j++){
+					System.out.print(puzzle.board[i][j] + " ");
+				}
+				System.out.println();
+			}
+			System.out.println();
+
 			System.out.println(puzzle);
 		}else{
 			Cell emptyCell = findEmptyCell(puzzle);

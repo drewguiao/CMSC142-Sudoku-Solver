@@ -35,6 +35,10 @@ class Puzzle{
 		this.solutions.add(board);
 	}
 
+	public List<int[][]> getSolutions(){
+		return this.solutions;
+	}
+
 	public int[][] getOriginalBoard(){
 		return this.originalBoard;
 	}
