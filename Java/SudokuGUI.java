@@ -8,12 +8,14 @@ import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.text.DefaultCaret;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 class SudokuGUI{
 	private JFrame sudokuFrame;
 	private JFrame solutionsFrame;
 	private JPanel menuPanel, boardPanel,solutionsPanel;
-	private JButton selectPuzzle, solveButton,solveXButton,solveYButton,solveXYButton;
+	private JButton selectPuzzle, solveButton, getSolutionsButton;
 	private JTextField grid[][];
 	private int boardSize;
 	private int subGridSize;
@@ -44,15 +46,20 @@ class SudokuGUI{
 
 		this.selectPuzzle = new JButton("Select Puzzle");
 		this.solveButton = new JButton("Solve");
-		this.solveXButton = new JButton("Solve X");
-		this.solveYButton = new JButton("Solve Y");
-		this.solveXYButton = new JButton("Solve XY");
+		this.getSolutionsButton = new JButton("Get possible solutions");
+
+		this.selectPuzzle.addActionListener(
+			provideSolutionListenerSelect()
+			);
+
+		this.getSolutionsButton.addActionListener(
+			provideSolutionListenerGet()
+			);
 
 		this.menuPanel.add(this.selectPuzzle);
 		this.menuPanel.add(this.solveButton);
-		this.menuPanel.add(this.solveXButton);
-		this.menuPanel.add(this.solveYButton);
-		this.menuPanel.add(this.solveXYButton);
+		this.menuPanel.add(this.getSolutionsButton);
+
 	}
 
 	private void buildBoardPanel(){
@@ -80,6 +87,27 @@ class SudokuGUI{
 
 	}
 
+	private ActionListener provideSolutionListenerSelect(){
+		ActionListener action = new ActionListener(){
+			@Override
+				public void actionPerformed(ActionEvent e){
+					getFrame().setVisible(true);
+				}
+		};
+		return action;
+	}
+
+
+	private ActionListener provideSolutionListenerGet(){
+		ActionListener action = new ActionListener(){
+			@Override
+				public void actionPerformed(ActionEvent e){
+					getFrame().setVisible(true);
+				}
+		};
+		return action;
+	}
+
 	private void buildSolutionsFrame(){
 		this.solutionsFrame = new JFrame("Solutions");
 		this.solutionsPanel = new JPanel(new GridLayout(1,1));
@@ -93,9 +121,12 @@ class SudokuGUI{
 
 		this.solutionsPanel.add(scrollPane);
 		this.solutionsFrame.add(solutionsPanel);
-		this.solutionsFrame.setVisible(true);
 		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
-		this.solutionsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	public JFrame getFrame(){
+		JFrame retrieved = this.solutionsFrame;
+		return retrieved;
 	}
 
 
