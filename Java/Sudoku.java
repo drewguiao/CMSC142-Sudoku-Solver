@@ -45,32 +45,22 @@ class Sudoku implements Constants{
 			Puzzle puzzle = this.puzzles.get(i);
 			System.out.println("PUZZLE #"+(i+1));
 			System.out.println(puzzle);
-			// System.out.println();
 			solve(puzzle);
-			// solveNonRecursive(puzzle);
 		}
 	}
 
 	public void solveNonRecursive(Puzzle puzzle){
+		while(){
 
+		}
 	}
 
 	public void solve(Puzzle puzzle){
 		if(isFull(puzzle)){
 			System.out.println("Puzzle solved!");
-			puzzle.addSolution(puzzle.board);
+			int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
+			puzzle.addSolution(solvedBoard);
 			System.out.println("SOLUTION #"+(puzzle.getNumberOfSolutions()));
-
-			int absoluteSize = puzzle.getSubGridSize() * puzzle.getSubGridSize();
-			System.out.println("SOLVED CONFIG:");
-			for(int i = 0; i < absoluteSize; i++){
-				for(int j = 0; j < absoluteSize; j++){
-					System.out.print(puzzle.board[i][j] + " ");
-				}
-				System.out.println();
-			}
-			System.out.println();
-
 			System.out.println(puzzle);
 		}else{
 			Cell emptyCell = findEmptyCell(puzzle);
@@ -87,6 +77,15 @@ class Sudoku implements Constants{
 		}
 	}
 
+	private int[][] copyBoard(int[][] board, int boardSize){
+		int boardCopy[][] = new int[boardSize][boardSize];
+		for(int i = 0; i < boardSize; i++){
+			for(int j = 0; j < boardSize; j++){
+				boardCopy[i][j] = board[i][j];
+			}
+		}
+		return boardCopy;
+	}
 
 	public void solve(Puzzle puzzle, int identifier){
 		int boardSize = puzzle.getBoardSize();
