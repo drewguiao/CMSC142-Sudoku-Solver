@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Sudoku2 extends JFrame{
 	private int numOfPuzzles;
@@ -19,7 +20,7 @@ public class Sudoku2 extends JFrame{
 	private static final String SPACE = " ";
 	private static final int EMPTY = 0;
 	private List<Puzzle> puzzles = new ArrayList<>();
-
+	private int solutions = 0;
 	public Sudoku2(){}
 
 	public void readFile(String fileName){
@@ -104,6 +105,7 @@ public class Sudoku2 extends JFrame{
 				if(row!=size-1)	row++;
 				else return new Cell(row, col);
 				col=0;
+		
 			}
 		}while(!isEmpty(board, row, col));
 		return new Cell(row, col);
@@ -120,10 +122,16 @@ public class Sudoku2 extends JFrame{
 				col=size-1;
 			}
 		}while(!isEmpty(board, row, col));
-		try{
-			FileWriter fw = new FileWriter(new File("output.txt"), true);
-			fw.write("BACKTRACK: "+row + " "+col);
-		}catch
+		// try{
+		// 	FileWriter fw = new FileWriter(new File("output.txt"), true);
+		// 	fw.write("BACKTRACK: "+row + " "+col+"\n");
+		// 	fw.close();
+		// }
+		// catch(FileNotFoundException e){
+		// 		System.out.println("File not found");
+		// } catch(Exception e){
+		// 	System.out.println(e.getMessage());
+		// }
 		return new Cell(row, col);
 	}
 
@@ -140,7 +148,7 @@ public class Sudoku2 extends JFrame{
 	}
 	private void solve(Puzzle puzzle){
 		int row = 0, col = 0;
-		int solutions = 0;
+		solutions = 0;
 		int[][] initialBoard = puzzle.getBoard();
 		int boardSize = puzzle.getBoardSize();
 		int subGridSize = puzzle.getSubGridSize();
@@ -154,8 +162,20 @@ public class Sudoku2 extends JFrame{
 		boolean backtrack = false;
 		
 		while(!(col==-1 && row==0)){
-			printBoard(board, boardSize);
-			System.out.println(row+" " +col);
+			
+			// try{
+			// 		FileWriter fw = new FileWriter(new File("output.txt"), true);
+			// 			fw.write("Row: "+ row + " column:"+ col +"\n");
+			// 			fw.write("Backtrack: "+ backtrack+"\n");
+			// 			fw.close();
+			// 		}catch(FileNotFoundException e){
+			// 				System.out.println("File not found");
+			// 		} catch(Exception e){
+			// 			System.out.println(e.getMessage());
+			// 		}
+
+			// saveToFile(board);
+
 			if(!solutionFound){
 				if(col==-1){
 					row--;
@@ -175,12 +195,15 @@ public class Sudoku2 extends JFrame{
 
 				if(isEmpty(initialBoard, row, col)){
 					ArrayList<Integer> ve = findValidEntries(board, subGridSize, row, col);
+					
+					
 					if(ve.size()==0){
 						board[row][col]=0;
 						col--;
 						backtrack = true;
 						continue;
 					}
+
 					if(board[row][col] == ve.get(ve.size()-1))	{
 						board[row][col]=0;
 						col--;
@@ -199,34 +222,47 @@ public class Sudoku2 extends JFrame{
 				}else{
 					Cell newCell = findPrevEmptyCell(puzzle, row, col);
 					row = newCell.getX();
-					col = newCell.getY();
-				
-					
+					col = newCell.getY();					
 				}
 
 			}else{
 				solutionFound = false;
-				backtrack = true;
+				
 				solutions++;
 				printBoard(board, boardSize);
+				
 				saveToFile(board);
 				col--;
 				System.out.println(row+" " +col);
 				while(col!=-1){
 					if(isEmpty(initialBoard, row, col))board[row][col] = 0;
 					col--;
+					
 				}row--;
+
 				col = boardSize -1;
-				Cell newCell = findPrevEmptyCell(puzzle, row, col);
-				printBoard(board, boardSize);
-				row = newCell.getX();
-				col = newCell.getY()+1;
-				
+				if(!isEmpty(initialBoard, row, col)){
+					Cell newCell = findPrevEmptyCell(puzzle, row, col);
+					printBoard(board, boardSize);
+					row = newCell.getX();
+					col = newCell.getY()+1;
+					backtrack = true;
+				}
 
 			}
 			
 
-		}System.out.println("No of Solutions: " + solutions);
+		}
+		try{
+			FileWriter fw = new FileWriter(new File("output.txt"), true);
+			fw.write("No of Solutions: " + solutions+"\n");
+			fw.close();
+		}catch(FileNotFoundException e){
+				System.out.println("File not found");
+		} catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		// }System.out.println("No of Solutions: " + solutions);
 	}
 
 	private void saveToFile(int[][] board){
