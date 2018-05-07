@@ -13,14 +13,14 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Sudoku extends JFrame{
+public class Sudoku2 extends JFrame{
 	private int numOfPuzzles;
-	
+	private static final String INPUT_FILE = "input.txt";
 	private static final String SPACE = " ";
 	private static final int EMPTY = 0;
 	private List<Puzzle> puzzles = new ArrayList<>();
 
-	public Sudoku(){}
+	public Sudoku2(){}
 
 	public void readFile(String fileName){
 		try{
@@ -44,7 +44,7 @@ public class Sudoku extends JFrame{
 			}
 			breader.close();
 		}catch(IOException ioe){
-			System.out.println("Sudoku.java.readFile: "+ioe.getMessage());
+			System.out.println("Sudoku2.java.readFile: "+ioe.getMessage());
 		}
 	}
 
@@ -57,25 +57,31 @@ public class Sudoku extends JFrame{
 		}
 	}
 
+	private ArrayList<Integer> findValidEntries(int[][] board, int subGridSize, int row, int col){
+		ArrayList<Integer> validEntries = new ArrayList<Integer>();
+		int size = board[0].length;
+		for(int i = 1; i <= size; i++){
+			if(isValid(board, subGridSize, row, col, i)){
+				validEntries.add(i);
+			}
+		}
+		return validEntries;
+	}
 	private boolean isValid(int[][] board, int subGridSize, int row, int column, int n){
 		int r = row - row % subGridSize;
 	    int c = column - column % subGridSize;
-		System.out.print(n);
-		for(int i = 0; i < subGridSize*subGridSize; i++){	
+		int absoluteSize =subGridSize*subGridSize; 
+		for(int i = 0; i < absoluteSize; i++){
 			if(board[i][column]==n && i != row)	return false;
 			if(board[row][i]==n && i != column)	return false;
 		}
 
-	    System.out.println("NO");
-	    System.out.println("row: "+row+" column: "+column+ " r: "+r+" C: "+c);
+	    
 	    for(int i = r; i < r + subGridSize; i++){
 	    	if(i==row)	continue;
 	        for(int j = c; j < c + subGridSize; j++){
 	            if(j == column)  continue;
-	            if(board[i][j]==n) {
-	            	 System.out.println("YAS"+ j);
-	            	return false;
-	            }
+	            if(board[i][j]==n) return false;
 	            
 	        }
 	    }     
@@ -114,13 +120,17 @@ public class Sudoku extends JFrame{
 				col=size-1;
 			}
 		}while(!isEmpty(board, row, col));
+		try{
+			FileWriter fw = new FileWriter(new File("output.txt"), true);
+			fw.write("BACKTRACK: "+row + " "+col);
+		}catch
 		return new Cell(row, col);
 	}
 
 
-	private void printBoard(int[][] board){
-		for(int i = 0, j = 0; i < board[0].length; j++){
-			if(j==board[0].length){
+	private void printBoard(int[][] board, int size){
+		for(int i = 0, j = 0; i < size; j++){
+			if(j==size){
 				j=-1;
 				i++;
 				System.out.println("");
@@ -135,6 +145,7 @@ public class Sudoku extends JFrame{
 		int boardSize = puzzle.getBoardSize();
 		int subGridSize = puzzle.getSubGridSize();
 		int[][] board = new int[boardSize][boardSize];
+		
 		for(int i = 0; i < boardSize; i++){
 			System.arraycopy(initialBoard[i], 0, board[i], 0, boardSize);
 		}
@@ -143,8 +154,7 @@ public class Sudoku extends JFrame{
 		boolean backtrack = false;
 		
 		while(!(col==-1 && row==0)){
-			printBoard(board);
-			
+			printBoard(board, boardSize);
 			System.out.println(row+" " +col);
 			if(!solutionFound){
 				if(col==-1){
@@ -161,33 +171,26 @@ public class Sudoku extends JFrame{
 					}
 					
 				}
+
+
 				if(isEmpty(initialBoard, row, col)){
-					if(board[row][col] == boardSize)	{
-						board[row][col]=0;
-						col--;
-						backtrack = true;
-						continue;
-					}else backtrack = false;
-
-					board[row][col]++;
-					System.out.println(board[row][col]);
-					while(!isValid(board, subGridSize, row, col, board[row][col])){
-						
-						if(board[row][col]==boardSize)	
-							break;
-						board[row][col]++;
-						
-					}
-					
-					if(!isValid(board, subGridSize, row, col, board[row][col])){
+					ArrayList<Integer> ve = findValidEntries(board, subGridSize, row, col);
+					if(ve.size()==0){
 						board[row][col]=0;
 						col--;
 						backtrack = true;
 						continue;
 					}
+					if(board[row][col] == ve.get(ve.size()-1))	{
+						board[row][col]=0;
+						col--;
+						backtrack = true;
+						continue;
+					}
+					backtrack = false;
+					board[row][col] = ve.get(ve.indexOf(board[row][col])+1);	
+					col++;
 
-					else col++;
-					
 				}else if(backtrack != true){
 					Cell newCell = findNextEmptyCell(puzzle, row, col);
 					row = newCell.getX();
@@ -196,14 +199,16 @@ public class Sudoku extends JFrame{
 				}else{
 					Cell newCell = findPrevEmptyCell(puzzle, row, col);
 					row = newCell.getX();
-					col = newCell.getY();					
+					col = newCell.getY();
+				
+					
 				}
 
 			}else{
 				solutionFound = false;
 				backtrack = true;
 				solutions++;
-				printBoard(board);
+				printBoard(board, boardSize);
 				saveToFile(board);
 				col--;
 				System.out.println(row+" " +col);
@@ -211,11 +216,12 @@ public class Sudoku extends JFrame{
 					if(isEmpty(initialBoard, row, col))board[row][col] = 0;
 					col--;
 				}row--;
-				col = boardSize - 1;
+				col = boardSize -1;
 				Cell newCell = findPrevEmptyCell(puzzle, row, col);
-				printBoard(board);
+				printBoard(board, boardSize);
 				row = newCell.getX();
-				col = newCell.getY()+1;		
+				col = newCell.getY()+1;
+				
 
 			}
 			
@@ -406,6 +412,18 @@ public class Sudoku extends JFrame{
 		return this.puzzles;
 	}
 
-	
-	
+	public static void main(String[] args){
+
+		Sudoku2 s = new Sudoku2();
+		s.readFile(INPUT_FILE);
+		s.startSolving();
+
+		List<Puzzle> puzzles= s.getPuzzles();
+		Puzzle puzzle = puzzles.get(0);
+		int[][] board = puzzle.getBoard();
+		int subGridSize = puzzle.getSubGridSize();
+
+		SudokuGUI gui = new SudokuGUI(subGridSize,board);
+		gui.render();
+	}
 }
