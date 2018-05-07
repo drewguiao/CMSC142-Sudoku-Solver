@@ -1,13 +1,18 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
+import javax.swing.JLabel;
+import javax.swing.text.DefaultCaret;
 
 class SudokuGUI{
 	private JFrame sudokuFrame;
-	private JPanel menuPanel, boardPanel;
+	private JFrame solutionsFrame;
+	private JPanel menuPanel, boardPanel,solutionsPanel;
 	private JButton selectPuzzle, solveButton,solveXButton,solveYButton,solveXYButton;
 	private JTextField grid[][];
 	private int boardSize;
@@ -27,6 +32,7 @@ class SudokuGUI{
 		this.buildMenuPanel();
 		this.buildBoardPanel();
 		this.buildSudokuFrame();
+		this.buildSolutionsFrame();
 	}
 
 	public void render(){
@@ -72,6 +78,24 @@ class SudokuGUI{
 		this.sudokuFrame.setSize(JFRAME_SIZE,JFRAME_SIZE);
 		this.sudokuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+	}
+
+	private void buildSolutionsFrame(){
+		this.solutionsFrame = new JFrame("Solutions");
+		this.solutionsPanel = new JPanel(new GridLayout(1,1));
+		JTextArea possibleSolutions = new JTextArea();
+
+		DefaultCaret caret = (DefaultCaret)possibleSolutions.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.add(possibleSolutions);
+		scrollPane.setViewportView(possibleSolutions);
+
+		this.solutionsPanel.add(scrollPane);
+		this.solutionsFrame.add(solutionsPanel);
+		this.solutionsFrame.setVisible(true);
+		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
+		this.solutionsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 
