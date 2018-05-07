@@ -52,7 +52,7 @@ class SudokuGUI{
 		this.getSolutionsButton = new JButton("Get possible solutions");
 
 		this.selectPuzzle.addActionListener(
-			provideSolutionListenerSelect()
+			provideAvailablePuzzlesListener()
 			);
 
 		this.getSolutionsButton.addActionListener(
@@ -90,7 +90,7 @@ class SudokuGUI{
 
 	}
 
-	private ActionListener provideSolutionListenerSelect(){
+	private ActionListener provideSolutionListenerGet(){
 		ActionListener action = new ActionListener(){
 			@Override
 				public void actionPerformed(ActionEvent e){
@@ -100,12 +100,11 @@ class SudokuGUI{
 		return action;
 	}
 
-
-	private ActionListener provideSolutionListenerGet(){
+	private ActionListener provideAvailablePuzzlesListener(){
 		ActionListener action = new ActionListener(){
 			@Override
 				public void actionPerformed(ActionEvent e){
-					getFrame().setVisible(true);
+					getAvailalbePuzzlesFrame().setVisible(true);
 				}
 		};
 		return action;
@@ -135,12 +134,17 @@ class SudokuGUI{
 		this.availablePuzzlesPanel.add(label);
 		this.availablePuzzlesFrame.add(availablePuzzlesPanel);
 		this.availablePuzzlesFrame.setSize(500,100);
-		this.availablePuzzlesFrame.setVisible(true);
+		
 
 	}
 
 	public JFrame getFrame(){
 		JFrame retrieved = this.solutionsFrame;
+		return retrieved;
+	}
+
+	public JFrame getAvailalbePuzzlesFrame(){
+		JFrame retrieved = this.availablePuzzlesFrame;
 		return retrieved;
 	}
 
