@@ -27,7 +27,7 @@ class SudokuDAO{
 					}
 				}
 
-				Puzzle puzzle = new Puzzle(subGridSize, boardSize, board);
+				Puzzle puzzle = new Puzzle(subGridSize, boardSize, board, i);
 				this.puzzles.add(puzzle);
 			}
 			breader.close();
@@ -42,6 +42,20 @@ class SudokuDAO{
 
 	public List<Puzzle> getPuzzles(){
 		return this.puzzles;
+	}
+
+	public String getSolutionsFromOutputFile(String fileName){
+		String solutions = "";
+		try{
+			BufferedReader breader = new BufferedReader(new FileReader(fileName));
+			while(breader.ready()){
+				solutions += breader.readLine() +"\n";
+			}
+			breader.close();
+		}catch(IOException ioe){
+			System.out.println("SudokuDAO.java.getSolutionsFromOutputFile():"+ioe.getMessage());
+		}
+		return solutions;
 	}
 
 }
