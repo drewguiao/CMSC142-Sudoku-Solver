@@ -9,7 +9,14 @@ class Puzzle{
 	private int[][] originalBoard;
 	private int puzzleNumber;
 	private int numOfSolutions = 0;
+	
 	private List<int[][]> solutions = new ArrayList<>();
+	
+	private List<int[][]> naturalSolutions = new ArrayList<>();
+	private List<int[][]> xSolutions = new ArrayList<>();
+	private List<int[][]> ySolutions = new ArrayList<>();
+	private List<int[][]> xySolutions = new ArrayList<>();
+
 
 	public Puzzle(int subGridSize, int boardSize, int[][]  board, int puzzleNumber){
 		this.subGridSize = subGridSize;

@@ -141,109 +141,113 @@ class SudokuSolver implements Constants{
 		System.out.println("");
 	}
 
-	private void solve(Puzzle puzzle, int identifier){
+	// private void solve(Puzzle puzzle, int identifier){
 
-		int row = 0, col = 0;
-		int solutions = 0;
-		int[][] initialBoard = puzzle.getBoard();
-		int boardSize = puzzle.getBoardSize();
-		int subGridSize = puzzle.getSubGridSize();
-		int[][] board = new int[boardSize][boardSize];
+	// 	int row = 0, col = 0;
+	// 	int solutions = 0;
+	// 	int[][] initialBoard = puzzle.getBoard();
+	// 	int boardSize = puzzle.getBoardSize();
+	// 	int subGridSize = puzzle.getSubGridSize();
+	// 	int[][] board = new int[boardSize][boardSize];
 		
-		for(int i = 0; i < boardSize; i++){
-			System.arraycopy(initialBoard[i], 0, board[i], 0, boardSize);
-		}
-		
-		boolean solutionFound = false;
-		boolean backtrack = false;
-		
-		while(!(col==-1 && row==0)){
 
-			if(!solutionFound){
-				if(col==-1){
-					row--;
-					col = boardSize - 1;
-				}
-				else if(col == boardSize){
-					if(row != boardSize - 1)	{
-						row++;
-						col = 0;
-					}else{
-						solutionFound = true;
-						continue;
-					}
+	// 	if(boardSize % 2 == 0 && (identifier == Y_SOLVING || identifier == XY_SOLVING)) return;
+	// 	if(boardSize % 2 != 0 && (identifier == Y_SOLVING || identifier == XY_SOLVING) && hasIrregularities(puzzle)) return;
+
+	// 	for(int i = 0; i < boardSize; i++){
+	// 		System.arraycopy(initialBoard[i], 0, board[i], 0, boardSize);
+	// 	}
+		
+	// 	boolean solutionFound = false;
+	// 	boolean backtrack = false;
+		
+	// 	while(!(col==-1 && row==0)){
+
+	// 		if(!solutionFound){
+	// 			if(col==-1){
+	// 				row--;
+	// 				col = boardSize - 1;
+	// 			}
+	// 			else if(col == boardSize){
+	// 				if(row != boardSize - 1)	{
+	// 					row++;
+	// 					col = 0;
+	// 				}else{
+	// 					solutionFound = true;
+	// 					continue;
+	// 				}
 					
-				}
-				if(isEmpty(initialBoard, row, col)){
-					ArrayList<Integer> ve = findValidEntries(board, subGridSize, row, col, identifier);	
-					if(ve.size()==0){
-						board[row][col]=0;
-						col--;
-						backtrack = true;
-						continue;
-					}
+	// 			}
+	// 			if(isEmpty(initialBoard, row, col)){
+	// 				ArrayList<Integer> ve = findValidEntries(board, subGridSize, row, col, identifier);	
+	// 				if(ve.size()==0){
+	// 					board[row][col]=0;
+	// 					col--;
+	// 					backtrack = true;
+	// 					continue;
+	// 				}
 
-					if(board[row][col] == ve.get(ve.size()-1))	{
-						board[row][col]=0;
-						col--;
-						backtrack = true;
-						continue;
-					}
-					backtrack = false;
-					board[row][col] = ve.get(ve.indexOf(board[row][col])+1);	
-					col++;
+	// 				if(board[row][col] == ve.get(ve.size()-1))	{
+	// 					board[row][col]=0;
+	// 					col--;
+	// 					backtrack = true;
+	// 					continue;
+	// 				}
+	// 				backtrack = false;
+	// 				board[row][col] = ve.get(ve.indexOf(board[row][col])+1);	
+	// 				col++;
 
-				}else if(backtrack != true){
-					Cell newCell = findNextEmptyCell(puzzle, row, col);
-					row = newCell.getX();
-					col = newCell.getY();
+	// 			}else if(backtrack != true){
+	// 				Cell newCell = findNextEmptyCell(puzzle, row, col);
+	// 				row = newCell.getX();
+	// 				col = newCell.getY();
 				
-				}else{
-					Cell newCell = findPrevEmptyCell(puzzle, row, col);
-					row = newCell.getX();
-					col = newCell.getY();					
-				}
+	// 			}else{
+	// 				Cell newCell = findPrevEmptyCell(puzzle, row, col);
+	// 				row = newCell.getX();
+	// 				col = newCell.getY();					
+	// 			}
 
-			}else{
-				solutionFound = false;
-				solutions++;
+	// 		}else{
+	// 			solutionFound = false;
+	// 			solutions++;
 
-				// printBoard(board, boardSize);
+	// 			// printBoard(board, boardSize);
 				
-				int[][] solvedBoard = copyBoard(board, puzzle.getBoardSize());
-				puzzle.addSolution(solvedBoard);
+	// 			int[][] solvedBoard = copyBoard(board, puzzle.getBoardSize());
+	// 			puzzle.addSolution(solvedBoard);
 				
-				// saveToFile(board);
-				col--;
-				// System.out.println(row+" " +col);
-				while(col!=-1){
-					if(isEmpty(initialBoard, row, col))board[row][col] = 0;
-					col--;
-				}row--;
-				col = boardSize -1;
-				if(!isEmpty(initialBoard, row, col)){
-					Cell newCell = findPrevEmptyCell(puzzle, row, col);
-					// printBoard(board, boardSize);
-					row = newCell.getX();
-					col = newCell.getY()+1;
-					backtrack = true;
-				}
+	// 			// saveToFile(board);
+	// 			col--;
+	// 			// System.out.println(row+" " +col);
+	// 			while(col!=-1){
+	// 				if(isEmpty(initialBoard, row, col))board[row][col] = 0;
+	// 				col--;
+	// 			}row--;
+	// 			col = boardSize -1;
+	// 			if(!isEmpty(initialBoard, row, col)){
+	// 				Cell newCell = findPrevEmptyCell(puzzle, row, col);
+	// 				// printBoard(board, boardSize);
+	// 				row = newCell.getX();
+	// 				col = newCell.getY()+1;
+	// 				backtrack = true;
+	// 			}
 
-			}
+	// 		}
 			
 
-		}
-		// try{
-		// 	FileWriter fw = new FileWriter(new File("output.txt"), true);
-		// 	fw.write("No of Solutions: " + solutions+"\n");
-		// 	fw.close();
-		// }catch(FileNotFoundException e){
-		// 		System.out.println("File not found");
-		// } catch(Exception e){
-		// 	System.out.println(e.getMessage());
-		// }
-		// }System.out.println("No of Solutions: " + solutions);
-	}
+	// 	}
+	// 	// try{
+	// 	// 	FileWriter fw = new FileWriter(new File("output.txt"), true);
+	// 	// 	fw.write("No of Solutions: " + solutions+"\n");
+	// 	// 	fw.close();
+	// 	// }catch(FileNotFoundException e){
+	// 	// 		System.out.println("File not found");
+	// 	// } catch(Exception e){
+	// 	// 	System.out.println(e.getMessage());
+	// 	// }
+	// 	// }System.out.println("No of Solutions: " + solutions);
+	// }
 
 	private void saveToFile(int[][] board){
 		try{
@@ -291,33 +295,87 @@ class SudokuSolver implements Constants{
 		}
 	}
 
-	// public void solve(Puzzle puzzle, int solvingMode){
-	// 	int boardSize = puzzle.getBoardSize();
+	public void solve(Puzzle puzzle, int solvingMode){
+		int boardSize = puzzle.getBoardSize();
 
-	// 	if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && boardSize % 2 == 0){
-	// 		System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
-	// 	}else{
-	// 		if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && hasIrregularities(puzzle)){
-	// 			System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
-	// 		}else{
-	// 			if(isFull(puzzle)){
-	// 				int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
-	// 				puzzle.addSolution(solvedBoard);
-	// 			}else{
-	// 				Cell emptyCell = findEmptyCell(puzzle);
-	// 				int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, solvingMode);
+		if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && boardSize % 2 == 0){
+			// System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
+		}else{
+			if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && hasIrregularitiesInY(puzzle)){
+				// System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
+			}else if((solvingMode == X_SOLVING || solvingMode == XY_SOLVING) && hasIrregularitiesInX(puzzle)){
 
-	// 				for(int x = 0; x < boardSize; x++){
-	// 					if(possibleEntries[x] != EMPTY){
-	// 						puzzle.board[emptyCell.getX()][emptyCell.getY()] = possibleEntries[x];
-	// 						solve(puzzle,solvingMode);
-	// 					}
-	// 				}
-	// 				puzzle.board[emptyCell.getX()][emptyCell.getY()] = EMPTY;
-	// 			}
-	// 		}
-	// 	}
-	// }
+			}else{
+				if(isFull(puzzle)){
+					int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
+					puzzle.addSolution(solvedBoard);
+				}else{
+					Cell emptyCell = findEmptyCell(puzzle);
+					int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, solvingMode);
+
+					for(int x = 0; x < boardSize; x++){
+						if(possibleEntries[x] != EMPTY){
+							puzzle.board[emptyCell.getX()][emptyCell.getY()] = possibleEntries[x];
+							solve(puzzle,solvingMode);
+						}
+					}
+					puzzle.board[emptyCell.getX()][emptyCell.getY()] = EMPTY;
+				}
+			}
+		}
+	}
+
+
+	private boolean hasIrregularitiesInX(Puzzle puzzle){
+		int[][] board = puzzle.getBoard();
+		int boardSize = puzzle.getBoardSize();
+
+
+		for(int i = 0; i < boardSize; i++){
+			if(board[i][i] != EMPTY){
+				int leftComparator = board[i][i];
+				for(int j =  i + 1 ; j < boardSize - 1; j++){
+					if(leftComparator == board[j][j]) return true;
+				}
+			}
+
+			if(board[i][boardSize - i - 1] != EMPTY){
+				int rightComparator = board[i][boardSize - i - 1];
+				for(int j =  i + 1 ; j < boardSize - 1; j++){
+					if(rightComparator == board[j][boardSize - j -1]) return true;
+				}
+			}
+
+		}
+		return false;
+	}
+
+	private boolean hasIrregularitiesInY(Puzzle puzzle){
+		int[][] board = puzzle.getOriginalBoard();
+		int boardSize = puzzle.getBoardSize();
+		int halfOfBoard = boardSize / 2;
+
+		//check if a number in left and right diagonal exists already in stem
+		for(int i = 0; i < halfOfBoard; i++){
+			//left side
+			if(board[i][i] != EMPTY){
+				int comparator = board[i][i];
+				for(int x = halfOfBoard, y = halfOfBoard; x < boardSize; x++){
+					if(comparator == board[x][y]) return true;
+				}
+			}
+			//right side
+			if(board[i][boardSize - i - 1] != EMPTY){
+				int comparator = board[i][boardSize - i - 1];
+				for(int x = halfOfBoard, y = halfOfBoard; x < boardSize; x++){
+					if(comparator == board[x][y]) return true;
+
+				}
+			}
+		}
+
+		return false;
+	}
 
 	private int[][] copyBoard(int[][] board, int boardSize){
 		int boardCopy[][] = new int[boardSize][boardSize];
@@ -595,30 +653,7 @@ class SudokuSolver implements Constants{
 		return possibleEntries;
 	}
 
-	private boolean hasIrregularities(Puzzle puzzle){
-		int[][] board = puzzle.getOriginalBoard();
-		int boardSize = puzzle.getBoardSize();
-		int halfOfBoard = boardSize / 2;
-
-		//check if a number in left and right diagonal exists already in stem
-		for(int i = 0; i < halfOfBoard; i++){
-			if(board[i][i] != EMPTY){
-				int comparator = board[i][i];
-				for(int x = halfOfBoard, y = halfOfBoard; x < boardSize; x++){
-					if(comparator == board[x][y]) return true;
-				}
-			}
-			if(board[i][boardSize - i - 1] != EMPTY){
-				int comparator = board[i][boardSize - i - 1];
-				for(int x = halfOfBoard, y = halfOfBoard; x < boardSize; x++){
-					if(comparator == board[x][y]) return true;
-
-				}
-			}
-		}
-
-		return false;
-	}
+	
 
 	public int[][] translateConfigurationToBoard(JTextField[][] grid, int boardSize){
 		int[][] board = new int[boardSize][boardSize];
