@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
 import java.util.List;
-
+import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.FileWriter;
 class SudokuSolver implements Constants{
 
 	private static final int EMPTY = 0;
@@ -14,15 +17,254 @@ class SudokuSolver implements Constants{
 
 	public void solve(Puzzle puzzle){
 		solve(puzzle, NATURAL_SOLVING);
-		int naturalSolutions = puzzle.getNumberOfSolutions();
+		// int naturalSolutions = puzzle.getNumberOfSolutions();
 		solve(puzzle, X_SOLVING);
-		int xSolutions = puzzle.getNumberOfSolutions() - naturalSolutions;
+		// int xSolutions = puzzle.getNumberOfSolutions() - naturalSolutions;
 		solve(puzzle, Y_SOLVING);
-		int ySolutions = puzzle.getNumberOfSolutions() - xSolutions;
+		// int ySolutions = puzzle.getNumberOfSolutions() - xSolutions;
 		solve(puzzle, XY_SOLVING);
-		int xySolutions = puzzle.getNumberOfSolutions() - ySolutions;
+		// int xySolutions = puzzle.getNumberOfSolutions() - ySolutions;
 		saveSolutionsToFile(puzzle);
 	}
+
+	//lomboy branch
+	private ArrayList<Integer> findValidEntries(int[][] board, int subGridSize, int row, int col, int identifier){
+		ArrayList<Integer> validEntries = new ArrayList<Integer>();
+		int size = board[0].length;
+		for(int i = 1; i <= size; i++){
+			if(isValid(board, subGridSize, row, col, i, identifier)){
+				validEntries.add(i);
+			}
+		}
+		return validEntries;
+	}
+
+	private boolean isValid(int[][] board, int subGridSize, int row, int column, int n, int ident){
+		int r = row - row % subGridSize;
+	    int c = column - column % subGridSize;
+		int absoluteSize =subGridSize*subGridSize; 
+		boolean checkXLeft = false, checkXRight=false, checkYRight=false, checkYLeft=false, checkYMiddle=false;
+		
+		if(ident==1 || ident == 3 )	{ 
+			if(row==column)	checkXLeft = true;
+			if(column==absoluteSize-row-1)	checkXRight=true;
+
+		}
+		if(ident == 2 || ident==3){
+			if(subGridSize%2!=0){
+				if(row==column && row <=absoluteSize/2)	checkYLeft = true;
+				if(column==absoluteSize-row-1 && row <=absoluteSize/2)	checkYRight=true;
+				if(column==absoluteSize/2 && row>=absoluteSize/2)	checkYMiddle=true;
+			}
+			
+		}
+
+		for(int i = 0; i < absoluteSize; i++){
+			if(board[i][column]==n && i != row)	return false; //check column
+			if(board[row][i]==n && i != column)	return false; //check row
+			if(checkXLeft && board[i][i]==n && i!=row)	return false; //check left diagonal \
+			if(checkXRight && board[i][absoluteSize-i-1]==n && i!=row)	return false; //check right diagonal /
+			if(i<=absoluteSize/2 && i!=row){
+				if((checkYLeft || checkYMiddle) && board[i][i]==n)	
+					return false;
+				
+				if((checkYRight ||checkYMiddle) &&  board[i][absoluteSize-i-1]==n)
+					return false;
+					
+			}
+			if(i>=absoluteSize/2 && i!=row){
+				if((checkYMiddle || checkYLeft || checkYRight) && board[i][absoluteSize/2]==n)	
+					return false;	
+				
+			}
+		}
+
+	    //check subgrid
+	    for(int i = r; i < r + subGridSize; i++){
+	    	if(i==row)	continue;
+	        for(int j = c; j < c + subGridSize; j++){
+	            if(j == column)  continue;
+	            if(board[i][j]==n) return false;
+	            
+	        }
+	    } 
+	    return true;
+	}
+
+	private boolean isEmpty(int[][] board, int row, int col){
+		if(board[row][col]==0)
+			return true;
+		return false;
+	}
+
+	private Cell findNextEmptyCell(Puzzle puzzle, int row, int col){
+		int[][] board = puzzle.getBoard();
+		int size = puzzle.getBoardSize();
+		do{
+			col++;
+			if(col==size){
+				if(row!=size-1)	row++;
+				else return new Cell(row, col);
+				col=0;
+		
+			}
+		}while(!isEmpty(board, row, col));
+		return new Cell(row, col);
+
+	}
+	private Cell findPrevEmptyCell(Puzzle puzzle, int row, int col){
+		int[][] board = puzzle.getBoard();
+		int size = puzzle.getBoardSize();
+		do{
+			col--;
+			if(col==-1){
+				if(row==0)	return new Cell(row, col);
+				row--;
+				col=size-1;
+			}
+		}while(!isEmpty(board, row, col));
+		return new Cell(row, col);
+	}
+
+	private void printBoard(int[][] board, int size){
+		for(int i = 0, j = 0; i < size; j++){
+			if(j==size){
+				j=-1;
+				i++;
+				System.out.println("");
+			}else System.out.print(board[i][j]+" ");
+		}
+		System.out.println("");
+	}
+
+	private void solve(Puzzle puzzle, int identifier){
+
+		int row = 0, col = 0;
+		int solutions = 0;
+		int[][] initialBoard = puzzle.getBoard();
+		int boardSize = puzzle.getBoardSize();
+		int subGridSize = puzzle.getSubGridSize();
+		int[][] board = new int[boardSize][boardSize];
+		
+		for(int i = 0; i < boardSize; i++){
+			System.arraycopy(initialBoard[i], 0, board[i], 0, boardSize);
+		}
+		
+		boolean solutionFound = false;
+		boolean backtrack = false;
+		
+		while(!(col==-1 && row==0)){
+
+			if(!solutionFound){
+				if(col==-1){
+					row--;
+					col = boardSize - 1;
+				}
+				else if(col == boardSize){
+					if(row != boardSize - 1)	{
+						row++;
+						col = 0;
+					}else{
+						solutionFound = true;
+						continue;
+					}
+					
+				}
+				if(isEmpty(initialBoard, row, col)){
+					ArrayList<Integer> ve = findValidEntries(board, subGridSize, row, col, identifier);	
+					if(ve.size()==0){
+						board[row][col]=0;
+						col--;
+						backtrack = true;
+						continue;
+					}
+
+					if(board[row][col] == ve.get(ve.size()-1))	{
+						board[row][col]=0;
+						col--;
+						backtrack = true;
+						continue;
+					}
+					backtrack = false;
+					board[row][col] = ve.get(ve.indexOf(board[row][col])+1);	
+					col++;
+
+				}else if(backtrack != true){
+					Cell newCell = findNextEmptyCell(puzzle, row, col);
+					row = newCell.getX();
+					col = newCell.getY();
+				
+				}else{
+					Cell newCell = findPrevEmptyCell(puzzle, row, col);
+					row = newCell.getX();
+					col = newCell.getY();					
+				}
+
+			}else{
+				solutionFound = false;
+				solutions++;
+
+				printBoard(board, boardSize);
+				
+				int[][] solvedBoard = copyBoard(board, puzzle.getBoardSize());
+				puzzle.addSolution(solvedBoard);
+				
+				// saveToFile(board);
+				col--;
+				System.out.println(row+" " +col);
+				while(col!=-1){
+					if(isEmpty(initialBoard, row, col))board[row][col] = 0;
+					col--;
+				}row--;
+				col = boardSize -1;
+				if(!isEmpty(initialBoard, row, col)){
+					Cell newCell = findPrevEmptyCell(puzzle, row, col);
+					printBoard(board, boardSize);
+					row = newCell.getX();
+					col = newCell.getY()+1;
+					backtrack = true;
+				}
+
+			}
+			
+
+		}
+		// try{
+		// 	FileWriter fw = new FileWriter(new File("output.txt"), true);
+		// 	fw.write("No of Solutions: " + solutions+"\n");
+		// 	fw.close();
+		// }catch(FileNotFoundException e){
+		// 		System.out.println("File not found");
+		// } catch(Exception e){
+		// 	System.out.println(e.getMessage());
+		// }
+		// }System.out.println("No of Solutions: " + solutions);
+	}
+
+	private void saveToFile(int[][] board){
+		try{
+			FileWriter fw = new FileWriter(new File("output.txt"), true);
+			for(int i = 0, j = 0; i < board[0].length; j++){
+				if(j==board[0].length){
+					j=-1;
+					i++;
+					fw.write("\n");
+				}else fw.write(String.format("%d ", board[i][j]));
+
+			}
+			fw.write("\n");
+			fw.close();
+		}catch(FileNotFoundException e){
+				System.out.println("File not found");
+		} catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		
+	}
+
+
+	////////////////////////////////////////////////////// MASTER BRANCH //////////////////////////////////////////////
+
 
 	private void saveSolutionsToFile(Puzzle puzzle){
 		try(PrintWriter pwriter = new PrintWriter(new FileOutputStream(new File(OUTPUT_FILE),false))){
@@ -44,33 +286,33 @@ class SudokuSolver implements Constants{
 		}
 	}
 
-	public void solve(Puzzle puzzle, int solvingMode){
-		int boardSize = puzzle.getBoardSize();
+	// public void solve(Puzzle puzzle, int solvingMode){
+	// 	int boardSize = puzzle.getBoardSize();
 
-		if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && boardSize % 2 == 0){
-			System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
-		}else{
-			if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && hasIrregularities(puzzle)){
-				System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
-			}else{
-				if(isFull(puzzle)){
-					int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
-					puzzle.addSolution(solvedBoard);
-				}else{
-					Cell emptyCell = findEmptyCell(puzzle);
-					int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, solvingMode);
+	// 	if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && boardSize % 2 == 0){
+	// 		System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
+	// 	}else{
+	// 		if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && hasIrregularities(puzzle)){
+	// 			System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
+	// 		}else{
+	// 			if(isFull(puzzle)){
+	// 				int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
+	// 				puzzle.addSolution(solvedBoard);
+	// 			}else{
+	// 				Cell emptyCell = findEmptyCell(puzzle);
+	// 				int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, solvingMode);
 
-					for(int x = 0; x < boardSize; x++){
-						if(possibleEntries[x] != EMPTY){
-							puzzle.board[emptyCell.getX()][emptyCell.getY()] = possibleEntries[x];
-							solve(puzzle,solvingMode);
-						}
-					}
-					puzzle.board[emptyCell.getX()][emptyCell.getY()] = EMPTY;
-				}
-			}
-		}
-	}
+	// 				for(int x = 0; x < boardSize; x++){
+	// 					if(possibleEntries[x] != EMPTY){
+	// 						puzzle.board[emptyCell.getX()][emptyCell.getY()] = possibleEntries[x];
+	// 						solve(puzzle,solvingMode);
+	// 					}
+	// 				}
+	// 				puzzle.board[emptyCell.getX()][emptyCell.getY()] = EMPTY;
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	private int[][] copyBoard(int[][] board, int boardSize){
 		int boardCopy[][] = new int[boardSize][boardSize];

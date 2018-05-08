@@ -1,6 +1,5 @@
 import javax.swing.JButton;
 
-
 class PuzzleButton extends JButton{
 	private Puzzle puzzle;
 
@@ -11,7 +10,4 @@ class PuzzleButton extends JButton{
 	public Puzzle getPuzzle(){
 		return this.puzzle;
 	}
-
-
-
 }

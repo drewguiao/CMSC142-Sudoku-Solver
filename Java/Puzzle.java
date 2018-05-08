@@ -8,7 +8,6 @@ class Puzzle{
 	public int[][] board;
 	private int[][] originalBoard;
 	private int puzzleNumber;
-
 	private int numOfSolutions = 0;
 	private List<int[][]> solutions = new ArrayList<>();
 
@@ -18,6 +17,7 @@ class Puzzle{
 		this.board = board;
 		this.originalBoard = board;
 		this.puzzleNumber = puzzleNumber;
+
 	}
 
 	public int getSubGridSize(){
@@ -47,7 +47,6 @@ class Puzzle{
 		return retVal;
 	}
 
-
 	public void addSolution(int[][] board){
 		this.solutions.add(board);
 	}
@@ -59,7 +58,6 @@ class Puzzle{
 	public int[][] getOriginalBoard(){
 		return this.originalBoard;
 	}
-
 	
 	public int getNumberOfSolutions(){
 		return this.solutions.size();
