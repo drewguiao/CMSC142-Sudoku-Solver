@@ -1,16 +1,47 @@
 import javax.swing.JTextField;
 import javax.swing.JOptionPane;
+import java.io.PrintWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.util.List;
+
 class SudokuSolver implements Constants{
 
 	private static final int EMPTY = 0;
-
+	private static final String OUTPUT_FILE = "output.txt";
 	public SudokuSolver(){}
 
 	public void solve(Puzzle puzzle){
 		solve(puzzle, NATURAL_SOLVING);
+		int naturalSolutions = puzzle.getNumberOfSolutions();
 		solve(puzzle, X_SOLVING);
+		int xSolutions = puzzle.getNumberOfSolutions() - naturalSolutions;
 		solve(puzzle, Y_SOLVING);
+		int ySolutions = puzzle.getNumberOfSolutions() - xSolutions;
 		solve(puzzle, XY_SOLVING);
+		int xySolutions = puzzle.getNumberOfSolutions() - ySolutions;
+		saveSolutionsToFile(puzzle);
+	}
+
+	private void saveSolutionsToFile(Puzzle puzzle){
+		try(PrintWriter pwriter = new PrintWriter(new FileOutputStream(new File(OUTPUT_FILE),false))){
+			pwriter.write("PUZZLE #"+puzzle.getPuzzleNumber()+"\n");
+			List<int[][]> solutions = puzzle.getSolutions();
+			for(int[][] solution : solutions) {
+	      		int absoluteSize = puzzle.getSubGridSize() * puzzle.getSubGridSize();
+				for(int i = 0; i < absoluteSize;i++){
+	           		for(int j = 0; j < absoluteSize; j++){
+	                	pwriter.write(solution[i][j] + " ");
+	            	}
+	      			pwriter.write("\n");
+	      		}
+	        	pwriter.write("\n");
+	      	}
+	    pwriter.close();
+		}catch(IOException ioe){
+			System.out.println("SudokuSolver.java.saveSolutionsToFile():"+ioe.getMessage());
+		}
 	}
 
 	public void solve(Puzzle puzzle, int solvingMode){
@@ -23,10 +54,8 @@ class SudokuSolver implements Constants{
 				System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
 			}else{
 				if(isFull(puzzle)){
-					System.out.println("Puzzle solved!");
-					puzzle.addSolution(puzzle.board);
-					System.out.println("SOLUTION #"+(puzzle.getNumberOfSolutions()));
-					System.out.println(puzzle);
+					int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
+					puzzle.addSolution(solvedBoard);
 				}else{
 					Cell emptyCell = findEmptyCell(puzzle);
 					int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, solvingMode);
@@ -42,6 +71,17 @@ class SudokuSolver implements Constants{
 			}
 		}
 	}
+
+	private int[][] copyBoard(int[][] board, int boardSize){
+		int boardCopy[][] = new int[boardSize][boardSize];
+		for(int i = 0; i < boardSize; i++){
+			for(int j = 0; j < boardSize; j++){
+				boardCopy[i][j] = board[i][j];
+			}
+		}
+		return boardCopy;
+	}
+
 
 	private Cell findEmptyCell(Puzzle puzzle){
 		int boardSize = puzzle.getBoardSize();
