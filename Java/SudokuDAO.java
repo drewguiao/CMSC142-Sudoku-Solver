@@ -27,7 +27,7 @@ class SudokuDAO{
 					}
 				}
 
-				Puzzle puzzle = new Puzzle(subGridSize, boardSize, board, i);
+				Puzzle puzzle = new Puzzle(subGridSize, boardSize, board, i+1);
 				this.puzzles.add(puzzle);
 			}
 			breader.close();
@@ -35,7 +35,7 @@ class SudokuDAO{
 			System.out.println("SudokuDAO.java.getPuzzlesFromFile():"+ioe.getMessage());
 		}
 	}
-	
+
 	public int getNumberOfPuzzles(){
 		return this.numberOfPuzzles;
 	}
