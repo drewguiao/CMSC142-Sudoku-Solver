@@ -7,15 +7,15 @@ class SudokuRunner implements Constants{
 	private static final int NEXT = 5;
 
 	public static void main(String[] args){
-		Scanner console = new Scanner(System.in);
-		int choice = DEFAULT_CHOICE;
+		// Scanner console = new Scanner(System.in);
+		// int choice = DEFAULT_CHOICE;
 
-		Sudoku s = new Sudoku();
-		s.readFile(INPUT_FILE);
-		s.startSolving();
+		// Sudoku s = new Sudoku();
+		// s.readFile(INPUT_FILE);
+		// // s.startSolving();
 
-		List<Puzzle> puzzles = s.getPuzzles();
-		int numOfPuzzles = puzzles.size();
+		// List<Puzzle> puzzles = s.getPuzzles();
+		// int numOfPuzzles = puzzles.size();
 
 		// while(choice != EXIT){
 		// 	for(int i = 0; i < numOfPuzzles;){
@@ -43,12 +43,31 @@ class SudokuRunner implements Constants{
 		// 	}
 		// }
 
-		Puzzle puzzle = puzzles.get(0);
-		int[][] board = puzzle.getBoard();
-		int subGridSize = puzzle.getSubGridSize();
+		// Puzzle puzzle = puzzles.get(0);
+		// int[][] board = puzzle.getBoard();
+		// int subGridSize = puzzle.getSubGridSize();
 
-		SudokuGUI gui = new SudokuGUI(subGridSize,board);
-		gui.render();
+		// SudokuGUI gui = new SudokuGUI(subGridSize,board);
+		// gui.render();
+
+
+		
+			SudokuDAO sudokuDAO = new SudokuDAO();
+			sudokuDAO.getPuzzlesFromFile("input.txt");
+			List<Puzzle> puzzles = sudokuDAO.getPuzzles();
+			SudokuGUI sudokuGUI = new SudokuGUI(puzzles);
+			sudokuGUI.render();
+
+		
+
+
+		/*	
+			GUI PROCESS
+				puzzles, numberOfPuzzles
+				
+
+
+		*/
 	}
 
 	private static void showMenu(){

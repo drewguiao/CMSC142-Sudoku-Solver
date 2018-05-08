@@ -1,3 +1,5 @@
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -13,11 +15,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 class SudokuGUI{
-	private JFrame sudokuFrame, solutionsFrame;
-	private JPanel menuPanel, boardPanel,solutionsPanel;
-	private JButton selectPuzzleButton, solveButton, showPossibleSolutionsButton;
-	private JTextArea solutionsArea;
-	private JTextField grid[][];
+
+
+	
+	
 	private int boardSize;
 	private int subGridSize;
 	private int[][] board;
@@ -25,22 +26,41 @@ class SudokuGUI{
 	private static final String TITLE = "SUDOKU";
 	private static final int JTEXTFIELD_NUM_OF_COLS = 2;
 	private static final int JFRAME_SIZE = 700;
+	private static final String INPUT_FILE = "input.txt";
 
-	public SudokuGUI(int subGridSize, int[][] board){
-		this.subGridSize = subGridSize;
-		this.boardSize = subGridSize * subGridSize;
-		this.grid = new JTextField[boardSize][boardSize];
-		this.board = board;
+
+
+	//new GUI fields
+	private JFrame sudokuFrame, solutionsFrame, listFrame;
+	private JPanel menuPanel, solutionsPanel, listPanel;
+	private JPanel boardPanel;
+	private JButton selectPuzzleButton, solveButton, showPossibleSolutionsButton;
+	private JTextArea solutionsArea;
+	private JTextField grid[][];
+	private PuzzleButton[] puzzleButtons;
+
+	private int numberOfPuzzles;
+	private List<Puzzle> puzzles;
+	private Puzzle currentPuzzle;
+
+	public SudokuGUI(List<Puzzle> puzzles){
+		this.puzzles = puzzles;
+		this.numberOfPuzzles = puzzles.size();
+		this.currentPuzzle = puzzles.get(0);
+		this.subGridSize = currentPuzzle.getSubGridSize();
+
+		this.buildListFrame(); // build GUI that contains list of puzzles
+		this.buildSolutionsFrame(); // build GUI that contains solution for the current configuration of the board
 
 		this.buildMenuPanel();
 		this.buildBoardPanel();
 		this.buildSudokuFrame();
-		this.buildSolutionsFrame();
 	}
 
 	public void render(){
 		this.sudokuFrame.setVisible(true);
 	}
+
 
 	private void buildMenuPanel(){
 		this.menuPanel = new JPanel();
@@ -60,17 +80,25 @@ class SudokuGUI{
 	}
 
 	private void buildBoardPanel(){
+		int boardSize = this.currentPuzzle.getBoardSize();
+		int[][] board = this.currentPuzzle.getBoard();
+
 		this.boardPanel = new JPanel();
-		this.boardPanel.setLayout(new GridLayout(this.boardSize,this.boardSize));
-		for(int i = 0; i < this.boardSize; i++){
-			for(int j = 0; j < this.boardSize; j++){
+		this.boardPanel.setLayout(new GridLayout(boardSize,boardSize));
+
+		this.grid = new JTextField[boardSize][boardSize];
+
+		for(int i = 0; i < boardSize; i++){
+			for(int j = 0; j < boardSize; j++){
 				this.grid[i][j] = new JTextField(JTEXTFIELD_NUM_OF_COLS);
 				this.grid[i][j].setHorizontalAlignment(JTextField.CENTER);
-				this.grid[i][j].setText(""+ ((board[i][j] == 0) ? "" : ""+board[i][j]));
+				this.grid[i][j].setText(""+ ((board[i][j] == 0)? "" : ""+board[i][j]));
+				this.grid[i][j].setEditable((board[i][j] != 0) ? false: true);
 				this.boardPanel.add(this.grid[i][j]);
 			}
 		}
 	}
+
 
 	private void buildSudokuFrame(){
 		this.sudokuFrame = new JFrame(TITLE);
@@ -89,7 +117,18 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				System.out.println("Open puzzle selection menu!");
+				listFrame.setVisible(true);
+			}
+		};
+		return listener;
+	}
+
+	private ActionListener provideOnClickListener(){
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent ae){
+				PuzzleButton clickedButton = (PuzzleButton) ae.getSource();
+				setPuzzle(clickedButton.getPuzzle());
 			}
 		};
 		return listener;
@@ -99,8 +138,8 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				// SudokuSolver sudokuSolver = new SudokuSolver();
-				// sudokuSolver.solve(puzzle);
+				SudokuSolver sudokuSolver = new SudokuSolver();
+				sudokuSolver.solve(currentPuzzle);
 
 				buildSolutionsFrame();
 				solutionsFrame.setVisible(true);
@@ -113,8 +152,8 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				SudokuSolver s = new SudokuSolver();
-				if(s.isALegitimateSolution(grid, subGridSize)){
+				SudokuSolver solver = new SudokuSolver();
+				if(solver.isALegitimateSolution(grid, subGridSize)){
 					JOptionPane.showMessageDialog(sudokuFrame, "You got it right!");
 				}else{
 					JOptionPane.showMessageDialog(sudokuFrame, "Oh no! Your solution is wrong!");
@@ -141,7 +180,48 @@ class SudokuGUI{
 		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
 	}
 
+	private void buildListFrame(){
+		this.listFrame = new JFrame("Select a puzzle:");
+		this.listPanel = new JPanel();
+
+		this.puzzleButtons = new PuzzleButton[this.numberOfPuzzles];
+		for(int i = 0; i < numberOfPuzzles; i++){
+			puzzleButtons[i] = new PuzzleButton(this.puzzles.get(i));
+			puzzleButtons[i].setText("Puzzle #"+(i+1));
+			puzzleButtons[i].addActionListener(provideOnClickListener());
+			this.listPanel.add(puzzleButtons[i]);
+		}
+
+		this.listFrame.add(listPanel);
+		this.listFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
+		this.listFrame.pack();
+	}
+	
+	public void setPuzzle(Puzzle puzzle){
+		System.out.println(currentPuzzle);
+		if(currentPuzzle != null){
+			int currentBoardSize = currentPuzzle.getBoardSize();
+
+			//remove cells
+			for(int i = 0; i < currentBoardSize; i++){
+				for(int j = 0; j < currentBoardSize;j++){
+					this.boardPanel.remove(grid[i][j]);
+				}
+			}
+			this.sudokuFrame.remove(boardPanel);
+		}
+
+		
+		this.currentPuzzle = puzzle;
+		this.subGridSize = this.currentPuzzle.getSubGridSize();
+		this.buildBoardPanel();
+
+		this.sudokuFrame.add(this.boardPanel,BorderLayout.CENTER);
+		// this.sudokuFrame.pack();
+		this.sudokuFrame.revalidate();
+		this.sudokuFrame.repaint();
+	}
 
 
-
+	
 }
