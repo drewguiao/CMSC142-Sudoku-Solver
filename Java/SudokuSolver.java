@@ -1,5 +1,5 @@
 import javax.swing.JTextField;
-
+import javax.swing.JOptionPane;
 class SudokuSolver{
 
 	private static final int EMPTY = 0;
@@ -9,13 +9,21 @@ class SudokuSolver{
 
 	public int[][] translateConfigurationToBoard(JTextField[][] grid, int boardSize){
 		int[][] board = new int[boardSize][boardSize];
-		for(int i = 0; i < boardSize; i++){
-			for(int j = 0; j < boardSize; j++){
-				String cellText = grid[i][j].getText();
-				if(cellText.equals("")) board[i][j] = EMPTY;
-				else board[i][j] = Integer.parseInt(cellText);
+		try{
+			for(int i = 0; i < boardSize; i++){
+				for(int j = 0; j < boardSize; j++){
+					String cellText = grid[i][j].getText();
+					if(cellText.equals("")) board[i][j] = EMPTY;
+					else {
+						board[i][j] = Integer.parseInt(cellText);
+						if(board[i][j] > boardSize || board[i][j] < 1) throw new NumberFormatException("Not a valid number: board("+i+","+j+"):"+board[i][j]);
+					}
+				}
 			}
+		}catch(NumberFormatException nfe){
+			JOptionPane.showMessageDialog(null, "Invalid element!");
 		}
+
 		return board;
 	}
 
