@@ -7,15 +7,17 @@ class Puzzle{
 	private int boardSize;
 	public int[][] board;
 	private int[][] originalBoard;
+	private int puzzleNumber;
 
 	private int numOfSolutions = 0;
 	private List<int[][]> solutions = new ArrayList<>();
 
-	public Puzzle(int subGridSize, int boardSize, int[][]  board){
+	public Puzzle(int subGridSize, int boardSize, int[][]  board, int puzzleNumber){
 		this.subGridSize = subGridSize;
 		this.boardSize = boardSize;
 		this.board = board;
 		this.originalBoard = board;
+		this.puzzleNumber = puzzleNumber;
 	}
 
 	public int getSubGridSize(){
@@ -28,6 +30,21 @@ class Puzzle{
 
 	public int[][] getBoard(){
 		return this.board;
+	}
+
+	public String getVerboseSolutions(){
+		String retVal="";
+
+		for(int[][] solution: solutions){
+			for(int i = 0; i < boardSize; i++){
+				for(int j = 0; j < boardSize; j++){
+					retVal += ""+solution[i][j]+" ";
+				}
+				retVal += "\n";
+			}
+			retVal += "\n\n";
+		}
+		return retVal;
 	}
 
 
@@ -50,6 +67,10 @@ class Puzzle{
 
 	public void resetSolutions(){
 		this.solutions.clear();
+	}
+
+	public int getPuzzleNumber(){
+		return this.puzzleNumber;
 	}
 
 	@Override
