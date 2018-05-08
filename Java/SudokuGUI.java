@@ -4,6 +4,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -12,10 +13,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 class SudokuGUI{
-	private JFrame sudokuFrame;
-	private JFrame solutionsFrame;
+	private JFrame sudokuFrame, solutionsFrame;
 	private JPanel menuPanel, boardPanel,solutionsPanel;
-	private JButton selectPuzzle, solveButton, getSolutionsButton;
+	private JButton selectPuzzleButton, solveButton, showPossibleSolutionsButton;
+	private JTextArea solutionsArea;
 	private JTextField grid[][];
 	private int boardSize;
 	private int subGridSize;
@@ -44,21 +45,17 @@ class SudokuGUI{
 	private void buildMenuPanel(){
 		this.menuPanel = new JPanel();
 
-		this.selectPuzzle = new JButton("Select Puzzle");
+		this.selectPuzzleButton = new JButton("Select Puzzle");
 		this.solveButton = new JButton("Solve");
-		this.getSolutionsButton = new JButton("Get possible solutions");
+		this.showPossibleSolutionsButton = new JButton("Show possible solutions");
 
-		this.selectPuzzle.addActionListener(
-			provideSolutionListenerSelect()
-			);
+		this.selectPuzzleButton.addActionListener(provideSelectPuzzleListener());
+		this.showPossibleSolutionsButton.addActionListener(provideShowPossibleSolutionsListener());
+		this.solveButton.addActionListener(provideSolveListener());
 
-		this.getSolutionsButton.addActionListener(
-			provideSolutionListenerGet()
-			);
-
-		this.menuPanel.add(this.selectPuzzle);
+		this.menuPanel.add(this.selectPuzzleButton);
 		this.menuPanel.add(this.solveButton);
-		this.menuPanel.add(this.getSolutionsButton);
+		this.menuPanel.add(this.showPossibleSolutionsButton);
 
 	}
 
@@ -87,47 +84,64 @@ class SudokuGUI{
 
 	}
 
-	private ActionListener provideSolutionListenerSelect(){
-		ActionListener action = new ActionListener(){
+
+	private ActionListener provideSelectPuzzleListener(){
+		ActionListener listener = new ActionListener(){
 			@Override
-				public void actionPerformed(ActionEvent e){
-					getFrame().setVisible(true);
-				}
+			public void actionPerformed(ActionEvent e){
+				System.out.println("Open puzzle selection menu!");
+			}
 		};
-		return action;
+		return listener;
 	}
 
-
-	private ActionListener provideSolutionListenerGet(){
-		ActionListener action = new ActionListener(){
+	private ActionListener provideShowPossibleSolutionsListener(){
+		ActionListener listener = new ActionListener(){
 			@Override
-				public void actionPerformed(ActionEvent e){
-					getFrame().setVisible(true);
-				}
+			public void actionPerformed(ActionEvent e){
+				// SudokuSolver sudokuSolver = new SudokuSolver();
+				// sudokuSolver.solve(puzzle);
+
+				buildSolutionsFrame();
+				solutionsFrame.setVisible(true);
+			}
 		};
-		return action;
+		return listener;
 	}
+
+	private ActionListener provideSolveListener(){
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				SudokuSolver s = new SudokuSolver();
+				if(s.isALegitimateSolution(grid, subGridSize)){
+					JOptionPane.showMessageDialog(sudokuFrame, "You got it right!");
+				}else{
+					JOptionPane.showMessageDialog(sudokuFrame, "Oh no! Your solution is wrong!");
+				}
+			}
+		};
+		return listener;
+	}
+
 
 	private void buildSolutionsFrame(){
 		this.solutionsFrame = new JFrame("Solutions");
 		this.solutionsPanel = new JPanel(new GridLayout(1,1));
-		JTextArea possibleSolutions = new JTextArea();
+		this.solutionsArea = new JTextArea();
 
-		DefaultCaret caret = (DefaultCaret)possibleSolutions.getCaret();
+		DefaultCaret caret = (DefaultCaret)solutionsArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.add(possibleSolutions);
-		scrollPane.setViewportView(possibleSolutions);
+		scrollPane.add(solutionsArea);
+		scrollPane.setViewportView(solutionsArea);
 
 		this.solutionsPanel.add(scrollPane);
 		this.solutionsFrame.add(solutionsPanel);
 		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
 	}
 
-	public JFrame getFrame(){
-		JFrame retrieved = this.solutionsFrame;
-		return retrieved;
-	}
+
 
 
 }
