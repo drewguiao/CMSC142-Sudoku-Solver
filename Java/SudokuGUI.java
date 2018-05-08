@@ -15,22 +15,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 class SudokuGUI{
-
-
-	
-	
-	private int boardSize;
-	private int subGridSize;
-	private int[][] board;
-
 	private static final String TITLE = "SUDOKU";
 	private static final int JTEXTFIELD_NUM_OF_COLS = 2;
 	private static final int JFRAME_SIZE = 700;
 	private static final String INPUT_FILE = "input.txt";
+	private static final String OUTPUT_FILE = "output.txt";
 
-
-
-	//new GUI fields
 	private JFrame sudokuFrame, solutionsFrame, listFrame;
 	private JPanel menuPanel, solutionsPanel, listPanel;
 	private JPanel boardPanel;
@@ -42,6 +32,7 @@ class SudokuGUI{
 	private int numberOfPuzzles;
 	private List<Puzzle> puzzles;
 	private Puzzle currentPuzzle;
+	private int subGridSize;
 
 	public SudokuGUI(List<Puzzle> puzzles){
 		this.puzzles = puzzles;
@@ -50,8 +41,7 @@ class SudokuGUI{
 		this.subGridSize = currentPuzzle.getSubGridSize();
 
 		this.buildListFrame(); // build GUI that contains list of puzzles
-		this.buildSolutionsFrame(); // build GUI that contains solution for the current configuration of the board
-
+		
 		this.buildMenuPanel();
 		this.buildBoardPanel();
 		this.buildSudokuFrame();
@@ -140,8 +130,9 @@ class SudokuGUI{
 			public void actionPerformed(ActionEvent e){
 				SudokuSolver sudokuSolver = new SudokuSolver();
 				sudokuSolver.solve(currentPuzzle);
-
-				buildSolutionsFrame();
+				SudokuDAO sudokuDAO = new SudokuDAO();
+				String solutions = sudokuDAO.getSolutionsFromOutputFile(OUTPUT_FILE);
+				buildSolutionsFrame(solutions);
 				solutionsFrame.setVisible(true);
 			}
 		};
@@ -164,7 +155,7 @@ class SudokuGUI{
 	}
 
 
-	private void buildSolutionsFrame(){
+	private void buildSolutionsFrame(String solutions){
 		this.solutionsFrame = new JFrame("Solutions");
 		this.solutionsPanel = new JPanel(new GridLayout(1,1));
 		this.solutionsArea = new JTextArea();
@@ -174,6 +165,8 @@ class SudokuGUI{
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.add(solutionsArea);
 		scrollPane.setViewportView(solutionsArea);
+		this.solutionsArea.setEditable(false);
+		this.solutionsArea.setText(solutions);
 
 		this.solutionsPanel.add(scrollPane);
 		this.solutionsFrame.add(solutionsPanel);
@@ -202,7 +195,6 @@ class SudokuGUI{
 		if(currentPuzzle != null){
 			int currentBoardSize = currentPuzzle.getBoardSize();
 
-			//remove cells
 			for(int i = 0; i < currentBoardSize; i++){
 				for(int j = 0; j < currentBoardSize;j++){
 					this.boardPanel.remove(grid[i][j]);
