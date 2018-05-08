@@ -47,7 +47,7 @@ class SudokuRunner implements Constants{
 		int[][] board = puzzle.getBoard();
 		int subGridSize = puzzle.getSubGridSize();
 
-		SudokuGUI gui = new SudokuGUI(subGridSize,board);
+		SudokuGUI gui = new SudokuGUI(subGridSize,board,s);
 		gui.render();
 	}
 

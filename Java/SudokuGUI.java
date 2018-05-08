@@ -4,6 +4,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -11,7 +12,7 @@ import javax.swing.text.DefaultCaret;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-class SudokuGUI{
+class SudokuGUI implements Constants{
 	private JFrame sudokuFrame;
 	private JFrame solutionsFrame;
 	private JPanel menuPanel, boardPanel,solutionsPanel;
@@ -20,16 +21,18 @@ class SudokuGUI{
 	private int boardSize;
 	private int subGridSize;
 	private int[][] board;
+	private Sudoku sudoku;
 
 	private static final String TITLE = "SUDOKU";
 	private static final int JTEXTFIELD_NUM_OF_COLS = 2;
 	private static final int JFRAME_SIZE = 700;
 
-	public SudokuGUI(int subGridSize, int[][] board){
+	public SudokuGUI(int subGridSize, int[][] board, Sudoku sudoku){
 		this.subGridSize = subGridSize;
 		this.boardSize = subGridSize * subGridSize;
 		this.grid = new JTextField[boardSize][boardSize];
 		this.board = board;
+		this.sudoku = sudoku;
 
 		this.buildMenuPanel();
 		this.buildBoardPanel();
@@ -55,6 +58,10 @@ class SudokuGUI{
 		this.getSolutionsButton.addActionListener(
 			provideSolutionListenerGet()
 			);
+
+		this.solveButton.addActionListener(
+			checkBoard()
+		);
 
 		this.menuPanel.add(this.selectPuzzle);
 		this.menuPanel.add(this.solveButton);
@@ -87,27 +94,6 @@ class SudokuGUI{
 
 	}
 
-	private ActionListener provideSolutionListenerSelect(){
-		ActionListener action = new ActionListener(){
-			@Override
-				public void actionPerformed(ActionEvent e){
-					getFrame().setVisible(true);
-				}
-		};
-		return action;
-	}
-
-
-	private ActionListener provideSolutionListenerGet(){
-		ActionListener action = new ActionListener(){
-			@Override
-				public void actionPerformed(ActionEvent e){
-					getFrame().setVisible(true);
-				}
-		};
-		return action;
-	}
-
 	private void buildSolutionsFrame(){
 		this.solutionsFrame = new JFrame("Solutions");
 		this.solutionsPanel = new JPanel(new GridLayout(1,1));
@@ -122,6 +108,54 @@ class SudokuGUI{
 		this.solutionsPanel.add(scrollPane);
 		this.solutionsFrame.add(solutionsPanel);
 		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
+	}
+
+	private ActionListener provideSolutionListenerSelect(){
+		ActionListener action = new ActionListener(){
+			@Override
+				public void actionPerformed(ActionEvent e){
+					getFrame().setVisible(true);
+				}
+		};
+		return action;
+	}
+
+	private ActionListener provideSolutionListenerGet(){
+		ActionListener action = new ActionListener(){
+			@Override
+				public void actionPerformed(ActionEvent e){
+					getFrame().setVisible(true);
+				}
+		};
+		return action;
+	}
+
+	private ActionListener checkBoard(){
+		ActionListener action = new ActionListener(){
+			@Override
+				public void actionPerformed(ActionEvent e){
+					String message = verifySolution(sudoku.checkConfiguration(getInputBoard()));
+					JOptionPane.showMessageDialog(null, message);
+				}
+		};
+		return action;
+	}
+
+	private String verifySolution(boolean[] solutions){
+		return (
+			"Natural Solving: " + (solutions[NATURAL_SOLVING]?"Yes":"No")
+			+ "\nX Solving: " + (solutions[X_SOLVING]?"Yes":"No")
+			+ "\nY Solving: " + (solutions[Y_SOLVING]?"Yes":"No")
+			+ "\nXY Solving: " + (solutions[X_SOLVING]&solutions[Y_SOLVING]?"Yes":"No")
+		);
+	}
+
+	private int[][] getInputBoard(){
+		int[][] inputBoard = new int[boardSize][boardSize];
+		for(int i = 0; i < this.boardSize; i++)
+			for(int j = 0; j < this.boardSize; j++)
+				inputBoard[i][j] = Integer.parseInt(this.grid[i][j].getText());
+		return inputBoard;
 	}
 
 	public JFrame getFrame(){

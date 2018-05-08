@@ -549,8 +549,6 @@ class Sudoku implements Constants{
 			}
 		}
 
-
-
 		for(int x = 0; x < boardSize; x++){
        		possibleEntries[x] = (possibleEntries[x] == EMPTY) ? (x+1) : 0;
    		 }
@@ -603,6 +601,123 @@ class Sudoku implements Constants{
 
 	public List<Puzzle> getPuzzles(){
 		return this.puzzles;
+	}
+
+	public boolean[] checkConfiguration(int[][] board){
+	  ArrayList<Integer> numbers = new ArrayList<Integer>();
+		// {no solutions natural, x, y}
+		boolean[] solutions = {false, true, true, true};
+		int boardSize = board.length;
+		int i,j;
+
+		// CHECKER FOR NATURAL
+	  // for row
+	  for(i=0; i<boardSize; i++) {
+	    for(j=0; j<boardSize; j++) {
+	      if(board[i][j] == 0 || numbers.contains(board[i][j])) {
+					solutions[NATURAL_SOLVING] = false;
+					solutions[X_SOLVING] = false;
+					solutions[Y_SOLVING] = false;
+					return solutions;
+				}
+	      else numbers.add(board[i][j]);
+	    }
+	    numbers.clear();
+	  }
+		// for column
+		for(i=0; i<boardSize; i++) {
+	    for(j=0; j<boardSize; j++) {
+	      if(board[j][i] == 0 || numbers.contains(board[j][i])) {
+					solutions[NATURAL_SOLVING] = false;
+					return solutions;
+				}
+	      else numbers.add(board[j][i]);
+	    }
+	    numbers.clear();
+	  }
+
+		// for subgrid
+		//findEntriesInSubGrid
+		// int subGridSize = sqrt(boardSize);
+		// int boxIndexX = findBoundingBox(emptyCell.getX(), subGridSize);
+		// int boxIndexY = findBoundingBox(emptyCell.getY(), subGridSize);
+		//
+		// int xBounds = subGridSize + boxIndexX;
+		// int yBounds = subGridSize + boxIndexY;
+		//
+		// for(int x = boxIndexX; x < xBounds; x++){
+		// 	for(int y = boxIndexY; y < yBounds; y++){
+		// 		if(puzzle.board[x][y] != EMPTY){
+		// 			possibleEntries[puzzle.board[x][y] - 1] = 1;
+		// 		}
+		// 	}
+		// }
+
+		// CHECKER FOR X
+	  // for x left to right diagonal
+	  for(i=0; i<boardSize; i++){
+
+			if(board[i][i] == 0 || numbers.contains(board[i][i]))
+	      solutions[X_SOLVING] = false;
+	    else
+				numbers.add(board[i][i]);
+	  }
+		numbers.clear();
+	  // for x right to left diagonal
+    for( i=0, j=boardSize-1; i<boardSize; i++,j--){
+      if(board[i][j] == 0 || numbers.contains(board[i][j]))
+        solutions[X_SOLVING] = false;
+			else
+				numbers.add(board[i][j]);
+    }
+		numbers.clear();
+
+
+		// CHECKER FOR Y
+		if(boardSize%2 == 0) solutions[Y_SOLVING] = false;
+		else {
+			// for y left
+			for(i = 0; i < boardSize/2; i++){
+				if(board[i][i] == 0 || numbers.contains(board[i][i])){
+					solutions[Y_SOLVING] = false;
+					break;
+				} else {
+					numbers.add(board[i][i]);
+				}
+			}
+			//check middle for Y stem
+			for( i = boardSize/2,j = boardSize/2; i < boardSize; i++){
+				if(board[i][j] == 0 || numbers.contains(board[i][j])){
+					solutions[Y_SOLVING] = false;
+					break;
+				} else {
+					numbers.add(board[i][i]);
+				}
+			}
+			numbers.clear();
+
+			//check upper half right diagonal
+			for(i = 0, j = boardSize - 1; i < boardSize/2; i++,j--){
+				if(board[i][j] == 0 || numbers.contains(board[i][j])){
+					solutions[Y_SOLVING] = false;
+					break;
+				} else {
+					numbers.add(board[i][j]);
+				}
+			}
+			//check middle for Y stem
+			for(i = boardSize/2,j = boardSize/2; i < boardSize; i++){
+				if(board[i][j] == 0 || numbers.contains(board[i][j])){
+					solutions[Y_SOLVING] = false;
+					break;
+				} else {
+					numbers.add(board[i][j]);
+				}
+			}
+			numbers.clear();
+		}
+
+		return solutions;
 	}
 
 }
