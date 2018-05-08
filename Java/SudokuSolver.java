@@ -17,13 +17,17 @@ class SudokuSolver implements Constants{
 
 	public void solve(Puzzle puzzle){
 		solve(puzzle, NATURAL_SOLVING);
-		// int naturalSolutions = puzzle.getNumberOfSolutions();
+		int naturalSolutions = puzzle.getNumberOfSolutions();
+		System.out.println("NAT_SOLUTIONS #:"+naturalSolutions);
 		solve(puzzle, X_SOLVING);
-		// int xSolutions = puzzle.getNumberOfSolutions() - naturalSolutions;
+		int xSolutions = puzzle.getNumberOfSolutions() - naturalSolutions;
+		System.out.println("X_SOLUTIONS #:"+xSolutions);
 		solve(puzzle, Y_SOLVING);
-		// int ySolutions = puzzle.getNumberOfSolutions() - xSolutions;
+		int ySolutions = puzzle.getNumberOfSolutions() - xSolutions - naturalSolutions;
+		System.out.println("Y_SOLUTIONS #:"+ySolutions);
 		solve(puzzle, XY_SOLVING);
-		// int xySolutions = puzzle.getNumberOfSolutions() - ySolutions;
+		int xySolutions = puzzle.getNumberOfSolutions() - xSolutions - ySolutions - naturalSolutions;
+		System.out.println("XY_SOLUTIONS #:"+xySolutions);
 		saveSolutionsToFile(puzzle);
 	}
 
@@ -204,14 +208,14 @@ class SudokuSolver implements Constants{
 				solutionFound = false;
 				solutions++;
 
-				printBoard(board, boardSize);
+				// printBoard(board, boardSize);
 				
 				int[][] solvedBoard = copyBoard(board, puzzle.getBoardSize());
 				puzzle.addSolution(solvedBoard);
 				
 				// saveToFile(board);
 				col--;
-				System.out.println(row+" " +col);
+				// System.out.println(row+" " +col);
 				while(col!=-1){
 					if(isEmpty(initialBoard, row, col))board[row][col] = 0;
 					col--;
@@ -219,7 +223,7 @@ class SudokuSolver implements Constants{
 				col = boardSize -1;
 				if(!isEmpty(initialBoard, row, col)){
 					Cell newCell = findPrevEmptyCell(puzzle, row, col);
-					printBoard(board, boardSize);
+					// printBoard(board, boardSize);
 					row = newCell.getX();
 					col = newCell.getY()+1;
 					backtrack = true;
