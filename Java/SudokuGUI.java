@@ -128,12 +128,15 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
+				currentPuzzle.getSolutions().clear();
 				SudokuSolver sudokuSolver = new SudokuSolver();
 				sudokuSolver.solve(currentPuzzle);
 				SudokuDAO sudokuDAO = new SudokuDAO();
 				String solutions = sudokuDAO.getSolutionsFromOutputFile(OUTPUT_FILE);
+				// solutionsArea.setText("");
 				buildSolutionsFrame(solutions);
 				solutionsFrame.setVisible(true);
+
 			}
 		};
 		return listener;
@@ -166,6 +169,7 @@ class SudokuGUI{
 		scrollPane.add(solutionsArea);
 		scrollPane.setViewportView(solutionsArea);
 		this.solutionsArea.setEditable(false);
+		this.solutionsArea.setText("");
 		this.solutionsArea.setText(solutions);
 
 		this.solutionsPanel.add(scrollPane);
@@ -203,7 +207,6 @@ class SudokuGUI{
 			this.sudokuFrame.remove(boardPanel);
 		}
 
-		
 		this.currentPuzzle = puzzle;
 		this.subGridSize = this.currentPuzzle.getSubGridSize();
 		this.buildBoardPanel();

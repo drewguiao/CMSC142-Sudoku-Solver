@@ -271,7 +271,8 @@ class SudokuSolver implements Constants{
 
 
 	private void saveSolutionsToFile(Puzzle puzzle){
-		try(PrintWriter pwriter = new PrintWriter(new FileOutputStream(new File(OUTPUT_FILE),false))){
+
+		try(PrintWriter pwriter = new PrintWriter(new File(OUTPUT_FILE))){
 			pwriter.write("PUZZLE #"+puzzle.getPuzzleNumber()+"\n");
 			List<int[][]> solutions = puzzle.getSolutions();
 			for(int[][] solution : solutions) {
