@@ -21,11 +21,10 @@ class SudokuGUI{
 	private static final String INPUT_FILE = "input.txt";
 	private static final String OUTPUT_FILE = "output.txt";
 
-	private JFrame sudokuFrame, solutionsFrame, listFrame;
-	private JPanel menuPanel, solutionsPanel, listPanel;
+	private JFrame sudokuFrame, listFrame;
+	private JPanel menuPanel, listPanel;
 	private JPanel boardPanel;
 	private JButton selectPuzzleButton, solveButton, showPossibleSolutionsButton;
-	private JTextArea solutionsArea;
 	private JTextField grid[][];
 	private PuzzleButton[] puzzleButtons;
 
@@ -41,7 +40,7 @@ class SudokuGUI{
 		this.subGridSize = currentPuzzle.getSubGridSize();
 
 		this.buildListFrame(); // build GUI that contains list of puzzles
-		
+
 		this.buildMenuPanel();
 		this.buildBoardPanel();
 		this.buildSudokuFrame();
@@ -50,7 +49,6 @@ class SudokuGUI{
 	public void render(){
 		this.sudokuFrame.setVisible(true);
 	}
-
 
 	private void buildMenuPanel(){
 		this.menuPanel = new JPanel();
@@ -99,6 +97,7 @@ class SudokuGUI{
 
 		this.sudokuFrame.setSize(JFRAME_SIZE,JFRAME_SIZE);
 		this.sudokuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.sudokuFrame.setLocationRelativeTo(null);
 
 	}
 
@@ -132,11 +131,10 @@ class SudokuGUI{
 				SudokuSolver sudokuSolver = new SudokuSolver();
 				sudokuSolver.solve(currentPuzzle);
 				SudokuDAO sudokuDAO = new SudokuDAO();
-				String solutions = sudokuDAO.getSolutionsFromOutputFile(OUTPUT_FILE);
-				// solutionsArea.setText("");
-				buildSolutionsFrame(solutions);
-				solutionsFrame.setVisible(true);
-
+				if(currentPuzzle.getNumberOfSolutions()==0)
+					JOptionPane.showMessageDialog(sudokuFrame, "Oh no! There are no solutions!");
+				else
+					new SolutionsFrame(currentPuzzle);
 			}
 		};
 		return listener;
@@ -157,26 +155,6 @@ class SudokuGUI{
 		return listener;
 	}
 
-
-	private void buildSolutionsFrame(String solutions){
-		this.solutionsFrame = new JFrame("Solutions");
-		this.solutionsPanel = new JPanel(new GridLayout(1,1));
-		this.solutionsArea = new JTextArea();
-
-		DefaultCaret caret = (DefaultCaret)solutionsArea.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.add(solutionsArea);
-		scrollPane.setViewportView(solutionsArea);
-		this.solutionsArea.setEditable(false);
-		this.solutionsArea.setText("");
-		this.solutionsArea.setText(solutions);
-
-		this.solutionsPanel.add(scrollPane);
-		this.solutionsFrame.add(solutionsPanel);
-		this.solutionsFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
-	}
-
 	private void buildListFrame(){
 		this.listFrame = new JFrame("Select a puzzle:");
 		this.listPanel = new JPanel();
@@ -193,7 +171,7 @@ class SudokuGUI{
 		this.listFrame.setSize(JFRAME_SIZE/2,JFRAME_SIZE);
 		this.listFrame.pack();
 	}
-	
+
 	public void setPuzzle(Puzzle puzzle){
 		System.out.println(currentPuzzle);
 		if(currentPuzzle != null){
@@ -218,5 +196,5 @@ class SudokuGUI{
 	}
 
 
-	
+
 }
