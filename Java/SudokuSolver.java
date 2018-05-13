@@ -32,66 +32,90 @@ class SudokuSolver implements Constants{
 	}
 
 	//lomboy branch
-	private ArrayList<Integer> findValidEntries(int[][] board, int subGridSize, int row, int col, int identifier){
+	private ArrayList<Integer> findValidEntries(int[][] board, int subGridSize, int row, int col, int solvingMode){
 		ArrayList<Integer> validEntries = new ArrayList<Integer>();
 		int size = board[0].length;
 		for(int i = 1; i <= size; i++){
-			if(isValid(board, subGridSize, row, col, i, identifier)){
+			if(isValid(board, subGridSize, row, col, i, solvingMode)){
 				validEntries.add(i);
 			}
 		}
 		return validEntries;
 	}
-
-	private boolean isValid(int[][] board, int subGridSize, int row, int column, int n, int ident){
-		int r = row - row % subGridSize;
-	    int c = column - column % subGridSize;
-		int absoluteSize =subGridSize*subGridSize; 
-		boolean checkXLeft = false, checkXRight=false, checkYRight=false, checkYLeft=false, checkYMiddle=false;
-		
-		if(ident==1 || ident == 3 )	{ 
-			if(row==column)	checkXLeft = true;
-			if(column==absoluteSize-row-1)	checkXRight=true;
-
+	private boolean isValidInRowAndColumn(int[][] board, int boardSize, int rowIndex, int columnIndex, int number){
+		for(int i = 0; i < boardSize; i++){
+			if(board[rowIndex][i] == number && i != columnIndex)	return false; //checks row
+			if(board[i][columnIndex] == number && i != rowIndex)	return false; //checks column
 		}
-		if(ident == 2 || ident==3){
-			if(subGridSize%2!=0){
-				if(row==column && row <=absoluteSize/2)	checkYLeft = true;
-				if(column==absoluteSize-row-1 && row <=absoluteSize/2)	checkYRight=true;
-				if(column==absoluteSize/2 && row>=absoluteSize/2)	checkYMiddle=true;
-			}
-			
-		}
+		return true;
+	}
 
-		for(int i = 0; i < absoluteSize; i++){
-			if(board[i][column]==n && i != row)	return false; //check column
-			if(board[row][i]==n && i != column)	return false; //check row
-			if(checkXLeft && board[i][i]==n && i!=row)	return false; //check left diagonal \
-			if(checkXRight && board[i][absoluteSize-i-1]==n && i!=row)	return false; //check right diagonal /
-			if(i<=absoluteSize/2 && i!=row){
-				if((checkYLeft || checkYMiddle) && board[i][i]==n)	
-					return false;
-				
-				if((checkYRight ||checkYMiddle) &&  board[i][absoluteSize-i-1]==n)
-					return false;
-					
-			}
-			if(i>=absoluteSize/2 && i!=row){
-				if((checkYMiddle || checkYLeft || checkYRight) && board[i][absoluteSize/2]==n)	
-					return false;	
-				
-			}
-		}
+	private boolean isValidInSubGrid(int[][] board, int subGridSize, int rowIndex, int columnIndex, int number){
+		int startingRowIndex = rowIndex - rowIndex % subGridSize;
+	    int startingColumnIndex = columnIndex - columnIndex % subGridSize;
 
-	    //check subgrid
-	    for(int i = r; i < r + subGridSize; i++){
-	    	if(i==row)	continue;
-	        for(int j = c; j < c + subGridSize; j++){
-	            if(j == column)  continue;
-	            if(board[i][j]==n) return false;
+		for(int i = startingRowIndex; i < startingRowIndex + subGridSize; i++){
+	    	if(i == rowIndex)	continue;  //no need to check for the row since it is already checked in isValidInRowAndColumn
+	        for(int j = startingColumnIndex; j < startingColumnIndex + subGridSize; j++){
+	            if(j == columnIndex)  continue; //no need to check since it is already checked inisValidInRowAndColumn
+	            if(board[i][j] == number) return false;
 	            
 	        }
 	    } 
+	    return true;
+
+	}
+
+	private boolean isValidInXLeft(int[][] board, int boardSize, int index, int number){
+		for(int i = 0; i < boardSize; i++){
+			if(board[i][i] == number && i != index)	return false;
+		}
+		return true;
+	}
+
+	private boolean isValidInXRight(int[][] board, int boardSize, int index, int number){
+		for(int i = 0; i < boardSize; i++){
+			if(board[i][boardSize-i-1] == number && i!= index)	return false;
+		}
+		return true;
+	}
+
+	private boolean isValidInYLeft(int[][] board, int boardSize, int index, int number){
+		for(int i = 0; i < boardSize; i++){
+			if(i==index)	continue;
+			if(board[i][i] == number && i <= boardSize/2)	return false;
+			if(board[i][boardSize/2] == number && i >= boardSize/2)	return false;
+		}
+		return true;
+	}
+
+	private boolean isValidInYRight(int[][] board, int boardSize, int index, int number){
+		for(int i = 0; i < boardSize; i++){
+			if(i==index)	continue;
+			if(board[i][boardSize-i-1] == number && i <= boardSize/2)	return false;
+			if(board[i][boardSize/2] == number && i >= boardSize/2)		return false;
+		}
+		return true;
+	}
+
+	private boolean isValid(int[][] board, int subGridSize, int rowIndex, int columnIndex, int number, int solvingMode){
+		int boardSize = subGridSize*subGridSize; 
+		
+		if(!(isValidInRowAndColumn(board, boardSize, rowIndex, columnIndex, number)))	return false;
+		if(!(isValidInSubGrid(board, subGridSize, rowIndex, columnIndex, number)))	return false;
+		if(solvingMode == X_SOLVING || solvingMode == XY_SOLVING)	{ 
+			if(rowIndex == columnIndex && !(isValidInXLeft(board, boardSize, rowIndex, number)))	return false;	
+			if(columnIndex == boardSize-rowIndex-1 && !(isValidInXRight(board, boardSize, rowIndex, number)))	return false; //should check the right diagonal /
+
+		}
+		if(solvingMode == Y_SOLVING || solvingMode == XY_SOLVING){
+			
+			if(rowIndex == columnIndex && rowIndex <= boardSize/2 && !(isValidInYLeft(board, boardSize, rowIndex, number)))	return false;
+			if(columnIndex == boardSize-rowIndex-1 && rowIndex <= boardSize/2 && !(isValidInYRight(board, boardSize, rowIndex, number)))	return false;
+			
+			
+		}
+			
 	    return true;
 	}
 
@@ -141,89 +165,92 @@ class SudokuSolver implements Constants{
 		System.out.println("");
 	}
 
-	private void solve(Puzzle puzzle, int identifier){
-
-		int row = 0, col = 0;
-		int solutions = 0;
+	private void solve(Puzzle puzzle, int solvingMode){
+		int rowIndex = 0, columnIndex = 0;
 		int[][] initialBoard = puzzle.getBoard();
 		int boardSize = puzzle.getBoardSize();
 		int subGridSize = puzzle.getSubGridSize();
 		int[][] board = new int[boardSize][boardSize];
-		
-		for(int i = 0; i < boardSize; i++){
-			System.arraycopy(initialBoard[i], 0, board[i], 0, boardSize);
-		}
-		if((identifier==Y_SOLVING || identifier ==XY_SOLVING) && boardSize%2==0)		return;
-		if((identifier==Y_SOLVING || identifier == XY_SOLVING) && hasIrregularitiesInY(puzzle))	return;
-		if((identifier==X_SOLVING || identifier==XY_SOLVING) && hasIrregularitiesInX(puzzle))	return;
-		
 		boolean solutionFound = false;
 		boolean backtrack = false;
-		
-		while(!(col==-1 && row==0)){
 
-			if(!solutionFound){
-				if(col==-1){
-					row--;
-					col = boardSize - 1;
+
+		if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && (boardSize%2 == 0 || hasIrregularitiesInY(puzzle)))	return;
+		if((solvingMode == X_SOLVING || solvingMode == XY_SOLVING) && hasIrregularitiesInX(puzzle))	return;
+
+		for(int i = 0; i < boardSize; i++)
+			System.arraycopy(initialBoard[i], 0, board[i], 0, boardSize);
+		
+		
+		while(!(columnIndex == -1 && rowIndex == 0)){
+
+			if(!solutionFound){ // current board is not solved
+				if(columnIndex==-1){
+					rowIndex--;
+					columnIndex = boardSize - 1;
 				}
-				else if(col == boardSize){
-					if(row != boardSize - 1)	{
-						row++;
-						col = 0;
+				else if(columnIndex == boardSize){
+					if(rowIndex != boardSize - 1)	{
+						rowIndex++;
+						columnIndex = 0;
 					}else{
 						solutionFound = true;
 						continue;
 					}
 					
 				}
-				if(isEmpty(initialBoard, row, col)){
-					ArrayList<Integer> ve = findValidEntries(board, subGridSize, row, col, identifier);	
-					if(ve.size()==0){
-						board[row][col]=0;
-						col--;
+				if(isEmpty(initialBoard, rowIndex, columnIndex)){
+					ArrayList<Integer> ve = findValidEntries(board, subGridSize, rowIndex, columnIndex, solvingMode);	
+					//there are no valid entries for current cell or current cell contains the last valid entry
+					if(ve.size() == 0 || board[rowIndex][columnIndex] == ve.get(ve.size()-1)){ 
+						//backtrack
+						board[rowIndex][columnIndex] = 0;
+						columnIndex--;
 						backtrack = true;
 						continue;
 					}
-
-					if(board[row][col] == ve.get(ve.size()-1))	{
-						board[row][col]=0;
-						col--;
-						backtrack = true;
-						continue;
-					}
+					//else 
 					backtrack = false;
-					board[row][col] = ve.get(ve.indexOf(board[row][col])+1);	
-					col++;
+					//sets the value in the current cell the next valid entry
+					board[rowIndex][columnIndex] = ve.get(ve.indexOf(board[rowIndex][columnIndex])+1);
+					columnIndex++;
 
-				}else if(backtrack != true){
-					Cell newCell = findNextEmptyCell(puzzle, row, col);
-					row = newCell.getX();
-					col = newCell.getY();
+				}else if(backtrack){
+					Cell newCell = findPrevEmptyCell(puzzle, rowIndex, columnIndex);
+					rowIndex = newCell.getX();
+					columnIndex = newCell.getY();	
 				
 				}else{
-					Cell newCell = findPrevEmptyCell(puzzle, row, col);
-					row = newCell.getX();
-					col = newCell.getY();					
+					Cell newCell = findNextEmptyCell(puzzle, rowIndex, columnIndex);
+					rowIndex = newCell.getX();
+					columnIndex = newCell.getY();				
 				}
 
-			}else{
+			}else{ //board is solved
 				solutionFound = false;
-				solutions++;
-				
-				int[][] solvedBoard = copyBoard(board, puzzle.getBoardSize());
+			
+				//adds current board to the puzzle's solution(s)
+				int[][] solvedBoard = new int[boardSize][boardSize];				
+				for(int i = 0; i < boardSize; i++){
+					System.arraycopy(board[i], 0, solvedBoard[i], 0, boardSize);
+				}
 				puzzle.addSolution(solvedBoard);
-				col--;
-				while(col!=-1){
-					if(isEmpty(initialBoard, row, col))board[row][col] = 0;
-					col--;
-				}row--;
-				col = boardSize -1;
-				if(!isEmpty(initialBoard, row, col)){
-					Cell newCell = findPrevEmptyCell(puzzle, row, col);
-					// printBoard(board, boardSize);
-					row = newCell.getX();
-					col = newCell.getY()+1;
+
+				//backtracks to the first cell in the last row 
+				columnIndex--; 
+				while(columnIndex!=-1){ 
+					if(isEmpty(initialBoard, rowIndex, columnIndex))
+						board[rowIndex][columnIndex] = 0; 
+					columnIndex--;
+				}
+				rowIndex--;
+				columnIndex = boardSize - 1;
+
+				//sets the current cell to the first previous cell it will encounter that is editable(its initial value is 0)
+				if(!isEmpty(initialBoard, rowIndex, columnIndex)){
+					Cell newCell = findPrevEmptyCell(puzzle, rowIndex, columnIndex);
+					rowIndex = newCell.getX();
+					columnIndex = newCell.getY()+1;
 					backtrack = true;
 				}
 
@@ -232,31 +259,6 @@ class SudokuSolver implements Constants{
 		}
 		
 	}
-
-	private void saveToFile(int[][] board){
-		try{
-			FileWriter fw = new FileWriter(new File("output.txt"), true);
-			for(int i = 0, j = 0; i < board[0].length; j++){
-				if(j==board[0].length){
-					j=-1;
-					i++;
-					fw.write("\n");
-				}else fw.write(String.format("%d ", board[i][j]));
-
-			}
-			fw.write("\n");
-			fw.close();
-		}catch(FileNotFoundException e){
-				System.out.println("File not found");
-		} catch(Exception e){
-			System.out.println(e.getMessage());
-		}
-		
-	}
-
-
-	////////////////////////////////////////////////////// MASTER BRANCH //////////////////////////////////////////////
-
 
 	private void saveSolutionsToFile(Puzzle puzzle){
 
@@ -278,37 +280,6 @@ class SudokuSolver implements Constants{
 			System.out.println("SudokuSolver.java.saveSolutionsToFile():"+ioe.getMessage());
 		}
 	}
-
-	// public void solve(Puzzle puzzle, int solvingMode){
-	// 	int boardSize = puzzle.getBoardSize();
-
-	// 	if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && boardSize % 2 == 0){
-	// 		// System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
-	// 	}else{
-	// 		if((solvingMode == Y_SOLVING || solvingMode == XY_SOLVING) && hasIrregularitiesInY(puzzle)){
-	// 			// System.out.println("SOLUTION #"+puzzle.getNumberOfSolutions());
-	// 		}else if((solvingMode == X_SOLVING || solvingMode == XY_SOLVING) && hasIrregularitiesInX(puzzle)){
-
-	// 		}else{
-	// 			if(isFull(puzzle)){
-	// 				int[][] solvedBoard = copyBoard(puzzle.board, puzzle.getBoardSize());
-	// 				puzzle.addSolution(solvedBoard);
-	// 			}else{
-	// 				Cell emptyCell = findEmptyCell(puzzle);
-	// 				int[] possibleEntries = getPossibleEntries(puzzle, emptyCell, solvingMode);
-
-	// 				for(int x = 0; x < boardSize; x++){
-	// 					if(possibleEntries[x] != EMPTY){
-	// 						puzzle.board[emptyCell.getX()][emptyCell.getY()] = possibleEntries[x];
-	// 						solve(puzzle,solvingMode);
-	// 					}
-	// 				}
-	// 				puzzle.board[emptyCell.getX()][emptyCell.getY()] = EMPTY;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 
 	private boolean hasIrregularitiesInX(Puzzle puzzle){
 		int[][] board = puzzle.getBoard();
@@ -361,283 +332,14 @@ class SudokuSolver implements Constants{
 		return false;
 	}
 
-	private int[][] copyBoard(int[][] board, int boardSize){
-		int boardCopy[][] = new int[boardSize][boardSize];
+	public boolean isFull(int[][] board, int boardSize){
 		for(int i = 0; i < boardSize; i++){
 			for(int j = 0; j < boardSize; j++){
-				boardCopy[i][j] = board[i][j];
+				if(board[i][j] == EMPTY) return false;
 			}
 		}
-		return boardCopy;
+		return true;
 	}
-
-
-	private Cell findEmptyCell(Puzzle puzzle){
-		int boardSize = puzzle.getBoardSize();
-		for(int i = 0; i < boardSize; i++){
-			for(int j = 0; j < boardSize; j++){
-				if(puzzle.board[i][j] == EMPTY){
-					return new Cell(i,j);
-				}
-			}
-		}
-		return null;
-	}
-
-	private int[] getPossibleEntries(Puzzle puzzle, Cell emptyCell, int solvingMode){
-
-		int boardSize = puzzle.getBoardSize();
-		int[] possibleEntries = new int[boardSize];
-		int xIndex = emptyCell.getX();
-		int yIndex = emptyCell.getY();
-
-
-		if(solvingMode == NATURAL_SOLVING){
-			//findEntriesInRow
-			for(int y = 0; y < boardSize; y++){
-				if(puzzle.board[xIndex][y] != EMPTY){
-					possibleEntries[puzzle.board[xIndex][y] - 1] = 1;
-				}
-			}
-
-			//findEntriesInColumn
-			for(int x = 0; x < boardSize; x++){
-				if(puzzle.board[x][yIndex] != EMPTY){
-					possibleEntries[puzzle.board[x][yIndex] - 1] = 1;
-				}
-			}
-
-			//findEntriesInSubGrid
-			int subGridSize = puzzle.getSubGridSize();
-			int boxIndexX = findBoundingBoxIndex(emptyCell.getX(), subGridSize);
-			int boxIndexY = findBoundingBoxIndex(emptyCell.getY(), subGridSize);
-
-			int xBounds = subGridSize + boxIndexX;
-			int yBounds = subGridSize + boxIndexY;
-
-			for(int x = boxIndexX; x < xBounds; x++){
-				for(int y = boxIndexY; y < yBounds; y++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-
-		}else if(solvingMode == X_SOLVING){
-
-			//findEntriesInRow
-			for(int y = 0; y < boardSize; y++){
-				if(puzzle.board[xIndex][y] != EMPTY){
-					possibleEntries[puzzle.board[xIndex][y] - 1] = 1;
-				}
-			}
-
-			//findEntriesInColumn
-			for(int x = 0; x < boardSize; x++){
-				if(puzzle.board[x][yIndex] != EMPTY){
-					possibleEntries[puzzle.board[x][yIndex] - 1] = 1;
-				}
-			}
-
-			//findEntriesInSubGrid
-			int subGridSize = puzzle.getSubGridSize();
-			int boxIndexX = findBoundingBoxIndex(emptyCell.getX(), subGridSize);
-			int boxIndexY = findBoundingBoxIndex(emptyCell.getY(), subGridSize);
-
-			int xBounds = subGridSize + boxIndexX;
-			int yBounds = subGridSize + boxIndexY;
-
-			for(int x = boxIndexX; x < xBounds; x++){
-				for(int y = boxIndexY; y < yBounds; y++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-			//findEntriesInXTopLeftToRightDiagonal
-			if(xIndex == yIndex){
-				for(int x = 0; x < boardSize; x++){
-					if(puzzle.board[x][x] != EMPTY){
-						possibleEntries[puzzle.board[x][x] - 1] = 1;
-					}
-				}
-			}
-
-			//findEntriesInXTopRightToLeftDiagonal
-			if(xIndex + yIndex == boardSize - 1){
-				for(int x = 0, y = boardSize - 1; x < boardSize; x++,y--){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-		}else if(solvingMode == Y_SOLVING){
-			//findEntriesInY
-
-
-			//findEntriesInRow
-			for(int y = 0; y < boardSize; y++){
-				if(puzzle.board[xIndex][y] != EMPTY){
-					possibleEntries[puzzle.board[xIndex][y] - 1] = 1;
-				}
-			}
-
-			//findEntriesInColumn
-			for(int x = 0; x < boardSize; x++){
-				if(puzzle.board[x][yIndex] != EMPTY){
-					possibleEntries[puzzle.board[x][yIndex] - 1] = 1;
-				}
-			}
-
-			//findEntriesInSubGrid
-			int subGridSize = puzzle.getSubGridSize();
-			int boxIndexX = findBoundingBoxIndex(emptyCell.getX(), subGridSize);
-			int boxIndexY = findBoundingBoxIndex(emptyCell.getY(), subGridSize);
-
-			int xBounds = subGridSize + boxIndexX;
-			int yBounds = subGridSize + boxIndexY;
-
-			for(int x = boxIndexX; x < xBounds; x++){
-				for(int y = boxIndexY; y < yBounds; y++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-
-			int halfOfBoard = boardSize / 2;
-
-			//check upper half left diagonal
-			if(xIndex < halfOfBoard && xIndex == yIndex){
-				for(int x = 0; x < halfOfBoard; x++){
-					if(puzzle.board[x][x] != EMPTY){
-						possibleEntries[puzzle.board[x][x] - 1] = 1;
-					}
-				}
-				for(int x = xIndex,y = yIndex; x < boardSize; x++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-			//check upper half right diagonal
-			if(xIndex < halfOfBoard && xIndex + yIndex == boardSize -1 ){
-				for(int x = 0, y = boardSize - 1; x < halfOfBoard; x++,y--){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-				for(int x = xIndex,y = yIndex; x < boardSize; x++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-
-			//check middle for Y stem
-			if(xIndex >= halfOfBoard && yIndex == halfOfBoard){
-				for(int x = 0; x < halfOfBoard; x++){
-					if(puzzle.board[x][x] != EMPTY){
-						possibleEntries[puzzle.board[x][x] - 1] = 1;
-					}
-				}
-				for(int x = 0, y = boardSize - 1; x < halfOfBoard; x++,y--){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-				for(int x = xIndex,y = yIndex; x < boardSize; x++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-		}else if(solvingMode == XY_SOLVING){
-			//findEntriesInRow
-			for(int y = 0; y < boardSize; y++){
-				if(puzzle.board[xIndex][y] != EMPTY){
-					possibleEntries[puzzle.board[xIndex][y] - 1] = 1;
-				}
-			}
-
-			//findEntriesInColumn
-			for(int x = 0; x < boardSize; x++){
-				if(puzzle.board[x][yIndex] != EMPTY){
-					possibleEntries[puzzle.board[x][yIndex] - 1] = 1;
-				}
-			}
-
-			//findEntriesInSubGrid
-			int subGridSize = puzzle.getSubGridSize();
-			int boxIndexX = findBoundingBoxIndex(emptyCell.getX(), subGridSize);
-			int boxIndexY = findBoundingBoxIndex(emptyCell.getY(), subGridSize);
-
-			int xBounds = subGridSize + boxIndexX;
-			int yBounds = subGridSize + boxIndexY;
-
-			for(int x = boxIndexX; x < xBounds; x++){
-				for(int y = boxIndexY; y < yBounds; y++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-			//findEntriesInXTopLeftToRightDiagonal
-			if(xIndex == yIndex){
-				for(int x = 0; x < boardSize; x++){
-					if(puzzle.board[x][x] != EMPTY){
-						possibleEntries[puzzle.board[x][x] - 1] = 1;
-					}
-				}
-			}
-
-			//findEntriesInXTopRightToLeftDiagonal
-			if(xIndex + yIndex == boardSize - 1){
-				for(int x = 0, y = boardSize - 1; x < boardSize; x++,y--){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-
-			int halfOfBoard = boardSize / 2;
-
-			//check upper half left diagonal
-			if(xIndex < halfOfBoard && xIndex == yIndex){
-				for(int x = 0; x < halfOfBoard; x++){
-					if(puzzle.board[x][x] != EMPTY){
-						possibleEntries[puzzle.board[x][x] - 1] = 1;
-					}
-				}
-			}
-			//check upper half right diagonal
-			if(xIndex < halfOfBoard && xIndex + yIndex == boardSize -1 ){
-				for(int x = 0, y = boardSize - 1; x < halfOfBoard; x++,y--){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-
-			//check middle for Y stem
-			if(xIndex >= halfOfBoard && yIndex == halfOfBoard){
-				for(int x = xIndex,y = yIndex; x < boardSize; x++){
-					if(puzzle.board[x][y] != EMPTY){
-						possibleEntries[puzzle.board[x][y] - 1] = 1;
-					}
-				}
-			}
-
-		}
-
-		for(int x = 0; x < boardSize; x++){
-       		possibleEntries[x] = (possibleEntries[x] == EMPTY) ? (x+1) : 0;
-   		 }
-
-		return possibleEntries;
-	}
-
-	
 
 	public int[][] translateConfigurationToBoard(JTextField[][] grid, int boardSize){
 		int[][] board = new int[boardSize][boardSize];
@@ -674,28 +376,6 @@ class SudokuSolver implements Constants{
 
 		return true;
 	}
-
-	public boolean isFull(Puzzle puzzle){
-		int[][] board = puzzle.getBoard();
-		int boardSize = puzzle.getBoardSize();
-		for(int i = 0; i < boardSize; i++){
-			for(int j = 0; j < boardSize; j++){
-				if(board[i][j] == EMPTY) return false;
-			}
-		}
-		return true;
-	}
-
-
-	public boolean isFull(int[][] board, int boardSize){
-		for(int i = 0; i < boardSize; i++){
-			for(int j = 0; j < boardSize; j++){
-				if(board[i][j] == EMPTY) return false;
-			}
-		}
-		return true;
-	}
-
 	private boolean isViable(int[][] board, int rowIndex, int columnIndex, int subGridSize){
 		int boardSize = subGridSize * subGridSize;
 	
@@ -735,4 +415,7 @@ class SudokuSolver implements Constants{
 	private int findBoundingBoxIndex(int index, int subGridSize){
 		return (index / subGridSize) * subGridSize;
 	}
+
 }
+
+	

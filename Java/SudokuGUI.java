@@ -7,6 +7,7 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -118,6 +119,7 @@ class SudokuGUI{
 			public void actionPerformed(ActionEvent ae){
 				PuzzleButton clickedButton = (PuzzleButton) ae.getSource();
 				setPuzzle(clickedButton.getPuzzle());
+				(SwingUtilities.getRoot(clickedButton)).setVisible(false);
 			}
 		};
 		return listener;
