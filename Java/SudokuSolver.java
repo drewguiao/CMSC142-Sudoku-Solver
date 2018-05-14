@@ -98,7 +98,7 @@ class SudokuSolver implements Constants{
 		return true;
 	}
 
-	private boolean isValid(int[][] board, int subGridSize, int rowIndex, int columnIndex, int number, int solvingMode){
+	public boolean isValid(int[][] board, int subGridSize, int rowIndex, int columnIndex, int number, int solvingMode){
 		int boardSize = subGridSize*subGridSize; 
 		
 		if(!(isValidInRowAndColumn(board, boardSize, rowIndex, columnIndex, number)))	return false;

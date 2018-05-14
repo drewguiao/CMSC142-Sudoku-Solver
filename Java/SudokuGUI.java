@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.JFrame;
@@ -11,9 +12,15 @@ import javax.swing.SwingUtilities;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JComboBox;
 import javax.swing.text.DefaultCaret;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 class SudokuGUI{
 	private static final String TITLE = "SUDOKU";
@@ -28,18 +35,21 @@ class SudokuGUI{
 	private JButton selectPuzzleButton, solveButton, showPossibleSolutionsButton;
 	private JTextField grid[][];
 	private PuzzleButton[] puzzleButtons;
+	private JComboBox<String> modeSelector;
 
 	private int numberOfPuzzles;
 	private List<Puzzle> puzzles;
 	private Puzzle currentPuzzle;
-	private int subGridSize;
+	private int subGridSize, mode;
+	private String[] modes;
 
 	public SudokuGUI(List<Puzzle> puzzles){
 		this.puzzles = puzzles;
 		this.numberOfPuzzles = puzzles.size();
 		this.currentPuzzle = puzzles.get(0);
 		this.subGridSize = currentPuzzle.getSubGridSize();
-
+		this.mode = 0;
+		this.modes = new String[]{"Normal Sudoku", "Sudoku X", "Sudoku Y", "Sudoku XY"};
 		this.buildListFrame(); // build GUI that contains list of puzzles
 
 		this.buildMenuPanel();
@@ -57,15 +67,17 @@ class SudokuGUI{
 		this.selectPuzzleButton = new JButton("Select Puzzle");
 		this.solveButton = new JButton("Solve");
 		this.showPossibleSolutionsButton = new JButton("Show possible solutions");
+		this.modeSelector = new JComboBox<String>(this.modes);
 
 		this.selectPuzzleButton.addActionListener(provideSelectPuzzleListener());
 		this.showPossibleSolutionsButton.addActionListener(provideShowPossibleSolutionsListener());
 		this.solveButton.addActionListener(provideSolveListener());
+		this.modeSelector.addItemListener(provideSelectionListener());
 
 		this.menuPanel.add(this.selectPuzzleButton);
 		this.menuPanel.add(this.solveButton);
 		this.menuPanel.add(this.showPossibleSolutionsButton);
-
+		this.menuPanel.add(this.modeSelector);
 	}
 
 	private void buildBoardPanel(){
@@ -83,6 +95,7 @@ class SudokuGUI{
 				this.grid[i][j].setHorizontalAlignment(JTextField.CENTER);
 				this.grid[i][j].setText(""+ ((board[i][j] == 0)? "" : ""+board[i][j]));
 				this.grid[i][j].setEditable((board[i][j] != 0) ? false: true);
+				this.grid[i][j].getDocument().addDocumentListener(provideDocumentListener());
 				this.boardPanel.add(this.grid[i][j]);
 			}
 		}
@@ -157,6 +170,64 @@ class SudokuGUI{
 		return listener;
 	}
 
+	private ItemListener provideSelectionListener(){
+		int boardSize = subGridSize*subGridSize;
+		ItemListener listener = new ItemListener(){
+			@Override
+			public void itemStateChanged(ItemEvent e){
+				 if (e.getStateChange() == ItemEvent.SELECTED) {
+				 	String selectedItem = (String) e.getItem();
+				 	if(selectedItem == SudokuGUI.this.modes[0])	SudokuGUI.this.mode = 0;
+				 	else if(selectedItem == SudokuGUI.this.modes[1])	SudokuGUI.this.mode = 1;
+				 	else if(selectedItem == SudokuGUI.this.modes[2])	SudokuGUI.this.mode = 2;
+				 	else if(selectedItem == SudokuGUI.this.modes[3])	SudokuGUI.this.mode = 3;
+				 }
+			for(int i = 0; i < boardSize; i++)
+				for(int j = 0; j < boardSize; j++)
+					if(SudokuGUI.this.grid[i][j].isEditable())	SudokuGUI.this.grid[i][j].setText("");
+				
+
+
+			}
+		};
+		return listener;
+	}
+	private DocumentListener provideDocumentListener(){
+		int boardSize = subGridSize*subGridSize;
+		DocumentListener listener = new DocumentListener(){
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				textFieldChanged(e);
+		    }
+		    @Override
+		    public void removeUpdate(DocumentEvent e) {
+		    	textFieldChanged(e);
+		    }
+
+		    public void changedUpdate(DocumentEvent e) {}
+
+		    public void textFieldChanged(DocumentEvent e){
+				Document updatedDocument = e.getDocument();
+				SudokuSolver solver = new SudokuSolver();
+			    for (int i = 0; i < boardSize; i++) {
+					for (int j = 0; j < boardSize; j++) {
+					    if (updatedDocument == grid[i][j].getDocument()){
+					        if(grid[i][j].getText().isEmpty())	grid[i][j].setBackground(Color.WHITE);
+							else{
+								int answer = Integer.parseInt(grid[i][j].getText());
+								if(!(solver.isValid(currentPuzzle.getBoard(), subGridSize, i, j, answer, SudokuGUI.this.mode)))
+										grid[i][j].setBackground(Color.RED);
+									else grid[i][j].setBackground(Color.GREEN);
+								}
+					        }
+					    }
+	  				}
+				}
+		};
+
+		
+		return listener;
+	}
 	private void buildListFrame(){
 		this.listFrame = new JFrame("Select a puzzle:");
 		this.listPanel = new JPanel();
