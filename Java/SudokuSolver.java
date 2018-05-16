@@ -15,19 +15,19 @@ class SudokuSolver implements Constants{
 	private static final String OUTPUT_FILE = "output.txt";
 	public SudokuSolver(){}
 
-	public void solve(Puzzle puzzle){
-		solve(puzzle, NATURAL_SOLVING);
-		int naturalSolutions = puzzle.getNumberOfSolutions();
-		System.out.println("NAT_SOLUTIONS #:"+naturalSolutions);
-		solve(puzzle, X_SOLVING);
-		int xSolutions = puzzle.getNumberOfSolutions() - naturalSolutions;
-		System.out.println("X_SOLUTIONS #:"+xSolutions);
-		solve(puzzle, Y_SOLVING);
-		int ySolutions = puzzle.getNumberOfSolutions() - xSolutions - naturalSolutions;
-		System.out.println("Y_SOLUTIONS #:"+ySolutions);
-		solve(puzzle, XY_SOLVING);
-		int xySolutions = puzzle.getNumberOfSolutions() - xSolutions - ySolutions - naturalSolutions;
-		System.out.println("XY_SOLUTIONS #:"+xySolutions);
+	public void solve(Puzzle puzzle, int solvingMode){
+		solveSudoku(puzzle, solvingMode);
+		int noOfSolutions = puzzle.getNumberOfSolutions();
+		switch(solvingMode){
+			case NATURAL_SOLVING: System.out.println("NAT_SOLUTIONS #:"+noOfSolutions);
+								  break;
+			case X_SOLVING: System.out.println("X_SOLUTIONS #:"+noOfSolutions);
+								  break;
+			case Y_SOLVING: System.out.println("Y_SOLUTIONS #:"+noOfSolutions);
+								  break;
+			case XY_SOLVING: System.out.println("XY_SOLUTIONS #:"+noOfSolutions);
+								  break;
+		}
 		saveSolutionsToFile(puzzle);
 	}
 
@@ -97,7 +97,29 @@ class SudokuSolver implements Constants{
 		}
 		return true;
 	}
+	public boolean isValid(JTextField[][] grid, int subGridSize, int rowIndex, int columnIndex, int solvingMode){
+		int boardSize = subGridSize * subGridSize;
+		int[][] board = translateConfigurationToBoard(grid, boardSize);
+		int number = board[rowIndex][columnIndex];
+		
+		if(!(isValidInRowAndColumn(board, boardSize, rowIndex, columnIndex, number)))	return false;
+		if(!(isValidInSubGrid(board, subGridSize, rowIndex, columnIndex, number)))	return false;
+		if(solvingMode == X_SOLVING || solvingMode == XY_SOLVING)	{ 
+			if(rowIndex == columnIndex && !(isValidInXLeft(board, boardSize, rowIndex, number)))	return false;	
+			if(columnIndex == boardSize-rowIndex-1 && !(isValidInXRight(board, boardSize, rowIndex, number)))	return false; //should check the right diagonal /
 
+		}
+		if(solvingMode == Y_SOLVING || solvingMode == XY_SOLVING){
+			
+			if(rowIndex == columnIndex && rowIndex <= boardSize/2 && !(isValidInYLeft(board, boardSize, rowIndex, number)))	return false;
+			if(columnIndex == boardSize-rowIndex-1 && rowIndex <= boardSize/2 && !(isValidInYRight(board, boardSize, rowIndex, number)))	return false;
+			
+			
+		}
+			
+	    return true;
+
+	}
 	public boolean isValid(int[][] board, int subGridSize, int rowIndex, int columnIndex, int number, int solvingMode){
 		int boardSize = subGridSize*subGridSize; 
 		
@@ -165,7 +187,7 @@ class SudokuSolver implements Constants{
 		System.out.println("");
 	}
 
-	private void solve(Puzzle puzzle, int solvingMode){
+	private void solveSudoku(Puzzle puzzle, int solvingMode){
 		int rowIndex = 0, columnIndex = 0;
 		int[][] initialBoard = puzzle.getBoard();
 		int boardSize = puzzle.getBoardSize();
@@ -355,7 +377,7 @@ class SudokuSolver implements Constants{
 				}
 			}
 		}catch(NumberFormatException nfe){
-			JOptionPane.showMessageDialog(null, "Invalid element!");
+			// JOptionPane.showMessageDialog(null, "Invalid element!");
 		}
 
 		return board;

@@ -28,7 +28,8 @@ class SudokuGUI{
 	private static final int JFRAME_SIZE = 700;
 	private static final String INPUT_FILE = "input.txt";
 	private static final String OUTPUT_FILE = "output.txt";
-
+	private static final int NORMAL = 0, SUDOKU_X = 1, SUDOKU_Y = 2, SUDOKU_XY = 3;
+	private static final String MODE0 = "Normal Sudoku", MODE1 = "Sudoku X", MODE2 = "Sudoku Y", MODE3 = "Sudoku XY";
 	private JFrame sudokuFrame, listFrame;
 	private JPanel menuPanel, listPanel;
 	private JPanel boardPanel;
@@ -49,7 +50,7 @@ class SudokuGUI{
 		this.currentPuzzle = puzzles.get(0);
 		this.subGridSize = currentPuzzle.getSubGridSize();
 		this.mode = 0;
-		this.modes = new String[]{"Normal Sudoku", "Sudoku X", "Sudoku Y", "Sudoku XY"};
+		this.modes = new String[]{MODE0, MODE1, MODE2, MODE3};
 		this.buildListFrame(); // build GUI that contains list of puzzles
 
 		this.buildMenuPanel();
@@ -132,7 +133,8 @@ class SudokuGUI{
 			public void actionPerformed(ActionEvent ae){
 				PuzzleButton clickedButton = (PuzzleButton) ae.getSource();
 				setPuzzle(clickedButton.getPuzzle());
-				(SwingUtilities.getRoot(clickedButton)).setVisible(false);
+				JFrame thisFrame = (JFrame )(SwingUtilities.getRoot(clickedButton));
+				thisFrame.setVisible(false);
 			}
 		};
 		return listener;
@@ -144,7 +146,7 @@ class SudokuGUI{
 			public void actionPerformed(ActionEvent e){
 				currentPuzzle.getSolutions().clear();
 				SudokuSolver sudokuSolver = new SudokuSolver();
-				sudokuSolver.solve(currentPuzzle);
+				sudokuSolver.solve(currentPuzzle, mode);
 				SudokuDAO sudokuDAO = new SudokuDAO();
 				if(currentPuzzle.getNumberOfSolutions()==0)
 					JOptionPane.showMessageDialog(sudokuFrame, "Oh no! There are no solutions!");
@@ -177,17 +179,15 @@ class SudokuGUI{
 			public void itemStateChanged(ItemEvent e){
 				 if (e.getStateChange() == ItemEvent.SELECTED) {
 				 	String selectedItem = (String) e.getItem();
-				 	if(selectedItem == SudokuGUI.this.modes[0])	SudokuGUI.this.mode = 0;
-				 	else if(selectedItem == SudokuGUI.this.modes[1])	SudokuGUI.this.mode = 1;
-				 	else if(selectedItem == SudokuGUI.this.modes[2])	SudokuGUI.this.mode = 2;
-				 	else if(selectedItem == SudokuGUI.this.modes[3])	SudokuGUI.this.mode = 3;
+				 	if(selectedItem == MODE0)	SudokuGUI.this.mode = NORMAL;
+				 	else if(selectedItem == MODE1)	SudokuGUI.this.mode = SUDOKU_X;
+				 	else if(selectedItem == MODE2)	SudokuGUI.this.mode = SUDOKU_Y;
+				 	else if(selectedItem == MODE3)	SudokuGUI.this.mode = SUDOKU_XY;
 				 }
 			for(int i = 0; i < boardSize; i++)
 				for(int j = 0; j < boardSize; j++)
 					if(SudokuGUI.this.grid[i][j].isEditable())	SudokuGUI.this.grid[i][j].setText("");
-				
-
-
+	
 			}
 		};
 		return listener;
@@ -212,12 +212,13 @@ class SudokuGUI{
 			    for (int i = 0; i < boardSize; i++) {
 					for (int j = 0; j < boardSize; j++) {
 					    if (updatedDocument == grid[i][j].getDocument()){
-					        if(grid[i][j].getText().isEmpty())	grid[i][j].setBackground(Color.WHITE);
+					    	String inputAnswer = grid[i][j].getText();
+					        if(inputAnswer.isEmpty())	grid[i][j].setBackground(Color.WHITE);
 							else{
-								int answer = Integer.parseInt(grid[i][j].getText());
-								if(!(solver.isValid(currentPuzzle.getBoard(), subGridSize, i, j, answer, SudokuGUI.this.mode)))
+								int answer = Integer.parseInt(inputAnswer);
+								if(!(solver.isValid(grid, subGridSize, i, j, SudokuGUI.this.mode)) || answer>boardSize)
 										grid[i][j].setBackground(Color.RED);
-									else grid[i][j].setBackground(Color.GREEN);
+								else grid[i][j].setBackground(Color.GREEN);
 								}
 					        }
 					    }
