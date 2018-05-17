@@ -38,21 +38,6 @@ class Puzzle{
 		return this.board;
 	}
 
-	public String getVerboseSolutions(){
-		String retVal="";
-
-		for(int[][] solution: solutions){
-			for(int i = 0; i < boardSize; i++){
-				for(int j = 0; j < boardSize; j++){
-					retVal += ""+solution[i][j]+" ";
-				}
-				retVal += "\n";
-			}
-			retVal += "\n\n";
-		}
-		return retVal;
-	}
-
 	public void addSolution(int[][] board){
 		this.solutions.add(board);
 	}
@@ -104,13 +89,14 @@ class Puzzle{
 
 	@Override
 	public String toString(){
-		String retVal = "Size: "+this.subGridSize+"\n";
+		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < boardSize; i++){
 			for(int j = 0; j < boardSize; j++){
-				retVal += ""+board[i][j]+" ";
+				builder.append(this.board[i][j]);
+				builder.append(" ");
 			}
-			retVal+="\n";
+			builder.append("\n");
 		}
-		return retVal;
+		return builder.toString();
 	}
 }

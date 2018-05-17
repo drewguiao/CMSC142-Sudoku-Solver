@@ -263,16 +263,17 @@ class SudokuGUI{
 		}
 
 		this.currentPuzzle = puzzle;
-
 		if(this.currentPuzzle.getSolutions().size() == 0){
+
 			SudokuSolver.solve(currentPuzzle);
+			
 		}
 
 		this.subGridSize = this.currentPuzzle.getSubGridSize();
 		this.buildBoardPanel();
 
 		this.sudokuFrame.add(this.boardPanel,BorderLayout.CENTER);
-		// this.sudokuFrame.pack();
+		
 		this.sudokuFrame.revalidate();
 		this.sudokuFrame.repaint();
 	}
