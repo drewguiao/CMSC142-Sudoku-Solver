@@ -11,7 +11,6 @@ class Puzzle{
 	private int numOfSolutions = 0;
 	
 	private List<int[][]> solutions = new ArrayList<>();
-	
 	private List<int[][]> naturalSolutions = new ArrayList<>();
 	private List<int[][]> xSolutions = new ArrayList<>();
 	private List<int[][]> ySolutions = new ArrayList<>();
@@ -58,8 +57,33 @@ class Puzzle{
 		this.solutions.add(board);
 	}
 
+	public void addXSolution(int[][] board){
+		this.xSolutions.add(board);
+	}
+	
+	public void addYSolution(int[][] board){
+		this.ySolutions.add(board);
+	}
+	
+	public void addXYSolution(int[][] board){
+		this.xySolutions.add(board);
+	}
+
+
 	public List<int[][]> getSolutions(){
 		return this.solutions;
+	}
+
+	public List<int[][]> getXSolutions(){
+		return this.xSolutions;
+	}
+
+	public List<int[][]> getYSolutions(){
+		return this.ySolutions;
+	}
+
+	public List<int[][]> getXYSolutions(){
+		return this.xySolutions;
 	}
 
 	public int[][] getOriginalBoard(){

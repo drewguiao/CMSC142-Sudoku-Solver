@@ -48,6 +48,11 @@ class SudokuGUI{
 		this.puzzles = puzzles;
 		this.numberOfPuzzles = puzzles.size();
 		this.currentPuzzle = puzzles.get(0);
+
+		if(this.currentPuzzle != null){
+			SudokuSolver.solve(currentPuzzle);
+		}
+
 		this.subGridSize = currentPuzzle.getSubGridSize();
 		this.mode = 0;
 		this.modes = new String[]{MODE0, MODE1, MODE2, MODE3};
@@ -144,14 +149,14 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				currentPuzzle.getSolutions().clear();
-				SudokuSolver sudokuSolver = new SudokuSolver();
-				sudokuSolver.solve(currentPuzzle, mode);
-				SudokuDAO sudokuDAO = new SudokuDAO();
-				if(currentPuzzle.getNumberOfSolutions()==0)
-					JOptionPane.showMessageDialog(sudokuFrame, "Oh no! There are no solutions!");
-				else
+				if(currentPuzzle.getSolutions().size() == 0) JOptionPane.showMessageDialog(sudokuFrame, "Oh no! There are no solutions!");
+				else{
+					System.out.println("NATURAL_SOLUTIONS: "+currentPuzzle.getSolutions().size());
+					System.out.println("X_SOLUTIONS: "+currentPuzzle.getXSolutions().size());
+					System.out.println("Y_SOLUTIONS: "+currentPuzzle.getYSolutions().size());
+					System.out.println("XY_SOLUTIONS: "+currentPuzzle.getXYSolutions().size());
 					new SolutionsFrame(currentPuzzle);
+				}
 			}
 		};
 		return listener;
@@ -161,8 +166,7 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				SudokuSolver solver = new SudokuSolver();
-				if(solver.isALegitimateSolution(grid, subGridSize)){
+				if(SudokuSolver.isALegitimateSolution(grid, subGridSize)){
 					JOptionPane.showMessageDialog(sudokuFrame, "You got it right!");
 				}else{
 					JOptionPane.showMessageDialog(sudokuFrame, "Oh no! Your solution is wrong!");
@@ -208,7 +212,6 @@ class SudokuGUI{
 
 		    public void textFieldChanged(DocumentEvent e){
 				Document updatedDocument = e.getDocument();
-				SudokuSolver solver = new SudokuSolver();
 			    for (int i = 0; i < boardSize; i++) {
 					for (int j = 0; j < boardSize; j++) {
 					    if (updatedDocument == grid[i][j].getDocument()){
@@ -216,7 +219,7 @@ class SudokuGUI{
 					        if(inputAnswer.isEmpty())	grid[i][j].setBackground(Color.WHITE);
 							else{
 								int answer = Integer.parseInt(inputAnswer);
-								if(!(solver.isValid(grid, subGridSize, i, j, SudokuGUI.this.mode)) || answer>boardSize)
+								if(!(SudokuSolver.isValid(grid, subGridSize, new Cell(i,j), SudokuGUI.this.mode)) || answer>boardSize)
 										grid[i][j].setBackground(Color.RED);
 								else grid[i][j].setBackground(Color.GREEN);
 								}
@@ -260,6 +263,11 @@ class SudokuGUI{
 		}
 
 		this.currentPuzzle = puzzle;
+
+		if(this.currentPuzzle.getSolutions().size() == 0){
+			SudokuSolver.solve(currentPuzzle);
+		}
+
 		this.subGridSize = this.currentPuzzle.getSubGridSize();
 		this.buildBoardPanel();
 
