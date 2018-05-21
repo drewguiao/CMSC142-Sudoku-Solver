@@ -33,7 +33,7 @@ class SudokuGUI{
 	private JFrame sudokuFrame, listFrame;
 	private JPanel menuPanel, listPanel;
 	private JPanel boardPanel;
-	private JButton selectPuzzleButton, solveButton, showPossibleSolutionsButton;
+	private JButton selectPuzzleButton, submitButton, showPossibleSolutionsButton;
 	private JTextField grid[][];
 	private PuzzleButton[] puzzleButtons;
 	private JComboBox<String> modeSelector;
@@ -67,17 +67,17 @@ class SudokuGUI{
 		this.menuPanel = new JPanel();
 
 		this.selectPuzzleButton = new JButton("Select Puzzle");
-		this.solveButton = new JButton("Solve");
+		this.submitButton = new JButton("Submit");
 		this.showPossibleSolutionsButton = new JButton("Show possible solutions");
 		this.modeSelector = new JComboBox<String>(this.modes);
 
 		this.selectPuzzleButton.addActionListener(provideSelectPuzzleListener());
 		this.showPossibleSolutionsButton.addActionListener(provideShowPossibleSolutionsListener());
-		this.solveButton.addActionListener(provideSolveListener());
+		this.submitButton.addActionListener(provideSubmitListener());
 		this.modeSelector.addItemListener(provideSelectionListener());
 
 		this.menuPanel.add(this.selectPuzzleButton);
-		this.menuPanel.add(this.solveButton);
+		this.menuPanel.add(this.submitButton);
 		this.menuPanel.add(this.showPossibleSolutionsButton);
 		this.menuPanel.add(this.modeSelector);
 	}
@@ -154,13 +154,30 @@ class SudokuGUI{
 				// 	new SolutionsFrame(currentPuzzle);
 				// }
 				List<int[][] > solutions = SudokuSolver.solve(grid,subGridSize);
-				System.out.println(solutions.size());
+				List<int[][]> solvingModeSolution = new ArrayList<>();
+				switch(mode){
+					case NORMAL:
+						solvingModeSolution = solutions;
+						break;
+					case SUDOKU_X:
+						solvingModeSolution = SudokuSolver.filterXSolutions(solutions,subGridSize);
+						break;
+					case SUDOKU_Y:
+						solvingModeSolution = SudokuSolver.filterYSolutions(solutions,subGridSize);
+						break;
+					case SUDOKU_XY:
+						solvingModeSolution = SudokuSolver.filterXYSolutions(solutions,subGridSize);
+						break;
+				}
+				if(solvingModeSolution.size() == 0){
+					JOptionPane.showMessageDialog(null,"No solutions!");
+				}else new SolutionsFrame(solvingModeSolution, subGridSize);
 			}
 		};
 		return listener;
 	}
 
-	private ActionListener provideSolveListener(){
+	private ActionListener provideSubmitListener(){
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
@@ -175,25 +192,25 @@ class SudokuGUI{
 	}
 
 	private ItemListener provideSelectionListener(){
-		int boardSize = subGridSize*subGridSize;
 		ItemListener listener = new ItemListener(){
 			@Override
 			public void itemStateChanged(ItemEvent e){
-				 if (e.getStateChange() == ItemEvent.SELECTED) {
+				int boardSize = SudokuGUI.this.subGridSize * SudokuGUI.this.subGridSize;
+			 	if (e.getStateChange() == ItemEvent.SELECTED) {
 				 	String selectedItem = (String) e.getItem();
 				 	if(selectedItem == MODE0)	SudokuGUI.this.mode = NORMAL;
 				 	else if(selectedItem == MODE1)	SudokuGUI.this.mode = SUDOKU_X;
 				 	else if(selectedItem == MODE2)	SudokuGUI.this.mode = SUDOKU_Y;
 				 	else if(selectedItem == MODE3)	SudokuGUI.this.mode = SUDOKU_XY;
-				 }
-			for(int i = 0; i < boardSize; i++)
-				for(int j = 0; j < boardSize; j++)
-					if(SudokuGUI.this.grid[i][j].isEditable())	SudokuGUI.this.grid[i][j].setText("");
-	
+				}
+				for(int i = 0; i < boardSize; i++)
+					for(int j = 0; j < boardSize; j++)
+						if(grid[i][j].isEditable()) grid[i][j].setText("");
 			}
 		};
 		return listener;
 	}
+
 	private DocumentListener provideDocumentListener(){
 		int boardSize = subGridSize*subGridSize;
 		DocumentListener listener = new DocumentListener(){

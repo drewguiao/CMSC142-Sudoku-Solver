@@ -59,7 +59,7 @@ final class SudokuSolver implements Constants{
 		
 		int boardSize = subGridSize * subGridSize;
 		int[][] board = translateConfigurationToBoard(currentGrid,boardSize);
-		printBoard(board,boardSize);
+		// printBoard(board,boardSize);
 		int overflow = boardSize + 1;
 		List<int[][]> solutions = new ArrayList<>();
 		List<Cell> emptyCells = getEmptyCells(board, boardSize);
@@ -232,6 +232,46 @@ final class SudokuSolver implements Constants{
 			}
 		}
 	}
+
+
+	public static List<int[][]> filterXSolutions(List<int[][]> solutions, int subGridSize){
+		int boardSize = subGridSize * subGridSize;
+		List<int[][]> xSolutions = new ArrayList<>();
+		for(int[][] solution: solutions){
+			if(isXSolvable(solution, boardSize)) xSolutions.add(solution);
+		}
+		return xSolutions;
+	}
+
+	public static List<int[][]> filterYSolutions(List<int[][]> solutions, int subGridSize){
+		int boardSize = subGridSize * subGridSize;
+		List<int[][]> ySolutions = new ArrayList<>();
+		for(int[][] solution: solutions){
+			if(isYSolvable(solution, boardSize)) ySolutions.add(solution);
+		}
+		return ySolutions;
+	}
+
+	public static List<int[][]> filterXYSolutions(List<int[][]> solutions, int subGridSize){
+		int boardSize = subGridSize * subGridSize;
+		List<int[][]> xySolutions = new ArrayList<>();
+		for(int[][] solvedBoard: solutions){
+			// int[][] boardCopy = copyBoard(solvedBoard,boardSize);
+			boolean isXSolvable = false;
+			boolean isYSolvable = false;
+			if(isXSolvable(solvedBoard,boardSize)){
+				isXSolvable = true;	
+			}
+			if(isYSolvable(solvedBoard,boardSize)){
+				isYSolvable = true;	
+			}
+			if(isXSolvable && isYSolvable){
+				xySolutions.add(solvedBoard);
+			}
+		}
+		return xySolutions;
+	}
+
 
 	public static boolean isALegitimateSolution(JTextField[][] grid, int subGridSize){
 		int boardSize = subGridSize * subGridSize;
