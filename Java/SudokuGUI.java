@@ -231,7 +231,10 @@ class SudokuGUI{
 					for (int j = 0; j < boardSize; j++) {
 					    if (updatedDocument == grid[i][j].getDocument()){
 					    	String inputAnswer = grid[i][j].getText();
-					        if(inputAnswer.isEmpty())	grid[i][j].setBackground(Color.WHITE);
+					        if(inputAnswer.isEmpty()){
+					        	grid[i][j].setBackground(Color.WHITE);
+					        	showPossibleSolutionsButton.setEnabled(true);
+					        }
 							else{
 								try{
 									int answer = Integer.parseInt(inputAnswer);
