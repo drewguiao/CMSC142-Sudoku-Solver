@@ -216,15 +216,21 @@ class SudokuGUI{
 					    	String inputAnswer = grid[i][j].getText();
 					        if(inputAnswer.isEmpty())	grid[i][j].setBackground(Color.WHITE);
 							else{
-								int answer = Integer.parseInt(inputAnswer);
-								if(!(SudokuSolver.isValid(grid, subGridSize, new Cell(i,j), SudokuGUI.this.mode)) || answer>boardSize){
+								try{
+									int answer = Integer.parseInt(inputAnswer);
+									if(!(SudokuSolver.isValid(grid, subGridSize, new Cell(i,j), SudokuGUI.this.mode)) || answer > boardSize){
 									grid[i][j].setBackground(Color.RED);
-									showPossibleSolutionsButton.setEnabled(false);	
+										showPossibleSolutionsButton.setEnabled(false);	
+									}
+									else{
+										grid[i][j].setBackground(Color.GREEN);
+										showPossibleSolutionsButton.setEnabled(true);	
+									}
+								}catch(NumberFormatException nfe){
+									grid[i][j].setBackground(Color.RED);
+									JOptionPane.showMessageDialog(null, "Invalid element! @ ("+i+","+j+")");
 								}
-								else{
-									grid[i][j].setBackground(Color.GREEN);
-									showPossibleSolutionsButton.setEnabled(true);	
-								}
+								
 							}
 			     		}
 				    }
