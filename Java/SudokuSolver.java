@@ -54,6 +54,54 @@ final class SudokuSolver implements Constants{
 		findXYSolutions(puzzle);
 	}
 
+
+	public static List<int[][] > solve(JTextField[][] currentGrid, int subGridSize){
+		
+		int boardSize = subGridSize * subGridSize;
+		int[][] board = translateConfigurationToBoard(currentGrid,boardSize);
+		printBoard(board,boardSize);
+		int overflow = boardSize + 1;
+		List<int[][]> solutions = new ArrayList<>();
+		List<Cell> emptyCells = getEmptyCells(board, boardSize);
+		int numberOfEmptyCells = emptyCells.size();
+		int numberOfSolutions = 0;
+		int numberOfXSolutions = 0;
+		int i = 0;
+
+		while(i != UNDERFLOW){
+			if(i == numberOfEmptyCells){
+				numberOfSolutions++;
+				int [][] boardCopy = copyBoard(board, boardSize);
+				solutions.add(boardCopy);
+				i--;
+			}
+			Cell currentEmptyCell = emptyCells.get(i);
+			int x = currentEmptyCell.getX();
+			int y = currentEmptyCell.getY();
+			
+			board[x][y]++;
+			
+			if(board[x][y] == overflow){
+				board[x][y] = EMPTY;
+				i--;
+			}else if(isViable(board,currentEmptyCell,subGridSize)) i++;
+		}
+		return solutions;
+	}
+
+	private static List<Cell> getEmptyCells(int[][] board, int boardSize){
+		List<Cell> emptyCells = new ArrayList<>();
+		for(int i = 0; i < boardSize; i++){
+			for(int j = 0; j < boardSize; j++){
+				if(board[i][j] == EMPTY) emptyCells.add(new Cell(i,j));
+			}
+		}
+		return emptyCells;
+	}
+
+
+
+
 	private static int[][] copyBoard(int[][] board, int boardSize){
 		int[][] newBoard = new int[boardSize][boardSize];
 		for(int i = 0; i < boardSize; i++){

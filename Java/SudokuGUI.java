@@ -49,10 +49,6 @@ class SudokuGUI{
 		this.numberOfPuzzles = puzzles.size();
 		this.currentPuzzle = puzzles.get(0);
 
-		if(this.currentPuzzle != null){
-			SudokuSolver.solve(currentPuzzle);
-		}
-
 		this.subGridSize = currentPuzzle.getSubGridSize();
 		this.mode = 0;
 		this.modes = new String[]{MODE0, MODE1, MODE2, MODE3};
@@ -149,14 +145,16 @@ class SudokuGUI{
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				if(currentPuzzle.getSolutions().size() == 0) JOptionPane.showMessageDialog(sudokuFrame, "Oh no! There are no solutions!");
-				else{
-					System.out.println("NATURAL_SOLUTIONS: "+currentPuzzle.getSolutions().size());
-					System.out.println("X_SOLUTIONS: "+currentPuzzle.getXSolutions().size());
-					System.out.println("Y_SOLUTIONS: "+currentPuzzle.getYSolutions().size());
-					System.out.println("XY_SOLUTIONS: "+currentPuzzle.getXYSolutions().size());
-					new SolutionsFrame(currentPuzzle);
-				}
+				// if(currentPuzzle.getSolutions().size() == 0) JOptionPane.showMessageDialog(sudokuFrame, "Oh no! There are no solutions!");
+				// else{
+				// 	System.out.println("NATURAL_SOLUTIONS: "+currentPuzzle.getSolutions().size());
+				// 	System.out.println("X_SOLUTIONS: "+currentPuzzle.getXSolutions().size());
+				// 	System.out.println("Y_SOLUTIONS: "+currentPuzzle.getYSolutions().size());
+				// 	System.out.println("XY_SOLUTIONS: "+currentPuzzle.getXYSolutions().size());
+				// 	new SolutionsFrame(currentPuzzle);
+				// }
+				List<int[][] > solutions = SudokuSolver.solve(grid,subGridSize);
+				System.out.println(solutions.size());
 			}
 		};
 		return listener;
@@ -219,14 +217,19 @@ class SudokuGUI{
 					        if(inputAnswer.isEmpty())	grid[i][j].setBackground(Color.WHITE);
 							else{
 								int answer = Integer.parseInt(inputAnswer);
-								if(!(SudokuSolver.isValid(grid, subGridSize, new Cell(i,j), SudokuGUI.this.mode)) || answer>boardSize)
-										grid[i][j].setBackground(Color.RED);
-								else grid[i][j].setBackground(Color.GREEN);
+								if(!(SudokuSolver.isValid(grid, subGridSize, new Cell(i,j), SudokuGUI.this.mode)) || answer>boardSize){
+									grid[i][j].setBackground(Color.RED);
+									showPossibleSolutionsButton.setEnabled(false);	
 								}
-					        }
-					    }
-	  				}
-				}
+								else{
+									grid[i][j].setBackground(Color.GREEN);
+									showPossibleSolutionsButton.setEnabled(true);	
+								}
+							}
+			     		}
+				    }
+  				}
+			}
 		};
 
 		
